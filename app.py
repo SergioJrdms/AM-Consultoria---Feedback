@@ -178,7 +178,6 @@ def parse_xtr(file):
     df_errors = pd.DataFrame(all_errors)
     return df_errors
 
-
 #================================================================================
 # INTERFACE GRÁFICA (STREAMLIT)
 #================================================================================
@@ -235,11 +234,12 @@ if st.button("Analisar Erros", type="primary"):
             progress_bar = st.progress(0)
             st.markdown("---")
             
-            # --- NOVA SEÇÃO DE LOGS DETALHADOS ---
             # Criar placeholders que serão atualizados
             log_container = st.container()
             log_leitura_xte = log_container.empty()
+            download_xte_placeholder = log_container.empty() # Placeholder para o botão de download
             log_leitura_xtr = log_container.empty()
+            download_xtr_placeholder = log_container.empty() # Placeholder para o botão de download
             log_leitura_ans = log_container.empty()
             log_cruzamento = log_container.empty()
             log_enriquecimento = log_container.empty()
@@ -250,10 +250,20 @@ if st.button("Analisar Erros", type="primary"):
             total_xte = len(uploaded_xte_files)
             for i, f in enumerate(uploaded_xte_files):
                 df_xte_list.append(parse_xte(f)[0])
-                progress_bar.progress(int(((i + 1) / total_xte) * 20)) # Etapa vale 20%
+                progress_bar.progress(int(((i + 1) / total_xte) * 20))
             df_xte_full = pd.concat(df_xte_list, ignore_index=True)
             log_leitura_xte.success(f"Passo 1/5: Arquivos XTE lidos e consolidados! ✅ ({len(df_xte_full)} registros encontrados)")
-            time.sleep(1) # Pausa para leitura
+            
+            # --- NOVO: Botão de Download para Passo 1 ---
+            excel_buffer_xte = io.BytesIO()
+            df_xte_full.to_excel(excel_buffer_xte, index=False, engine='xlsxwriter')
+            download_xte_placeholder.download_button(
+                label="⬇ Baixar Planilha de Dados (.xlsx)",
+                data=excel_buffer_xte.getvalue(),
+                file_name="dados_consolidados_xte.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            time.sleep(1)
 
             # Etapa 1.2: Ler arquivos XTR
             log_leitura_xtr.info("Passo 2/5: Lendo e consolidando arquivos de retorno (.xtr)... ⏳")
@@ -261,9 +271,19 @@ if st.button("Analisar Erros", type="primary"):
             total_xtr = len(uploaded_xtr_files)
             for i, f in enumerate(uploaded_xtr_files):
                 df_xtr_list.append(parse_xtr(f))
-                progress_bar.progress(20 + int(((i + 1) / total_xtr) * 20)) # Etapa vale +20%
+                progress_bar.progress(20 + int(((i + 1) / total_xtr) * 20))
             df_xtr_full = pd.concat(df_xtr_list, ignore_index=True)
             log_leitura_xtr.success(f"Passo 2/5: Arquivos XTR lidos e consolidados! ✅ ({len(df_xtr_full)} erros reportados)")
+
+            # --- NOVO: Botão de Download para Passo 2 ---
+            excel_buffer_xtr = io.BytesIO()
+            df_xtr_full.to_excel(excel_buffer_xtr, index=False, engine='xlsxwriter')
+            download_xtr_placeholder.download_button(
+                label="⬇ Baixar Planilha de Erros (.xlsx)",
+                data=excel_buffer_xtr.getvalue(),
+                file_name="erros_consolidados_xtr.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
             time.sleep(1)
 
             # Etapa 1.3: Ler Planilha ANS
@@ -312,7 +332,6 @@ if st.button("Analisar Erros", type="primary"):
                 log_enriquecimento.success("Passo 5/5: Análise enriquecida com as descrições dos erros! ✅")
                 time.sleep(1.5)
                 
-                # Limpar logs e barra de progresso
                 log_container.empty()
                 progress_bar.empty()
 
