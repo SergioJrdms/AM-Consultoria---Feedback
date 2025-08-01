@@ -178,6 +178,7 @@ def parse_xtr(file):
     df_errors = pd.DataFrame(all_errors)
     return df_errors
 
+
 #================================================================================
 # INTERFACE GRÁFICA (STREAMLIT)
 #================================================================================
@@ -215,7 +216,7 @@ Esta ferramenta de demonstração cruza os dados de um arquivo de retorno (`.XTR
 1.  Faça o upload do(s) arquivo(s) `.XTE` que você enviou. 
 2.  Faça o upload do(s) arquivo(s) de retorno `.XTR` correspondente(s).
 3.  Faça o upload da planilha de referência com os códigos de erro da ANS. 
-4.  Clique em "Analisar Erros" para gerar uma pré-visualização do relatório consolidado.
+4.  Clique em "Analisar Erros" para gerar o relatório consolidado.
 """)
 
 col1, col2, col3 = st.columns(3)
@@ -237,9 +238,9 @@ if st.button("Analisar Erros", type="primary"):
             # Criar placeholders que serão atualizados
             log_container = st.container()
             log_leitura_xte = log_container.empty()
-            download_xte_placeholder = log_container.empty() # Placeholder para o botão de download
+            download_xte_placeholder = log_container.empty()
             log_leitura_xtr = log_container.empty()
-            download_xtr_placeholder = log_container.empty() # Placeholder para o botão de download
+            download_xtr_placeholder = log_container.empty()
             log_leitura_ans = log_container.empty()
             log_cruzamento = log_container.empty()
             log_enriquecimento = log_container.empty()
@@ -254,11 +255,10 @@ if st.button("Analisar Erros", type="primary"):
             df_xte_full = pd.concat(df_xte_list, ignore_index=True)
             log_leitura_xte.success(f"Passo 1/5: Arquivos XTE lidos e consolidados! ✅ ({len(df_xte_full)} registros encontrados)")
             
-            # --- NOVO: Botão de Download para Passo 1 ---
             excel_buffer_xte = io.BytesIO()
             df_xte_full.to_excel(excel_buffer_xte, index=False, engine='xlsxwriter')
             download_xte_placeholder.download_button(
-                label="⬇ Baixar Planilha de Dados (.xlsx)",
+                label="⬇ Baixar Planilha de Dados XTE (.xlsx)",
                 data=excel_buffer_xte.getvalue(),
                 file_name="dados_consolidados_xte.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -275,11 +275,10 @@ if st.button("Analisar Erros", type="primary"):
             df_xtr_full = pd.concat(df_xtr_list, ignore_index=True)
             log_leitura_xtr.success(f"Passo 2/5: Arquivos XTR lidos e consolidados! ✅ ({len(df_xtr_full)} erros reportados)")
 
-            # --- NOVO: Botão de Download para Passo 2 ---
             excel_buffer_xtr = io.BytesIO()
             df_xtr_full.to_excel(excel_buffer_xtr, index=False, engine='xlsxwriter')
             download_xtr_placeholder.download_button(
-                label="⬇ Baixar Planilha de Erros (.xlsx)",
+                label="⬇ Baixar Planilha de Erros XTR (.xlsx)",
                 data=excel_buffer_xtr.getvalue(),
                 file_name="erros_consolidados_xtr.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -332,6 +331,7 @@ if st.button("Analisar Erros", type="primary"):
                 log_enriquecimento.success("Passo 5/5: Análise enriquecida com as descrições dos erros! ✅")
                 time.sleep(1.5)
                 
+                # Limpar logs e barra de progresso
                 log_container.empty()
                 progress_bar.empty()
 
@@ -339,6 +339,24 @@ if st.button("Analisar Erros", type="primary"):
                 st.markdown("Abaixo está uma **pré-visualização** do resultado da análise (primeiras 50 linhas):")
                 
                 st.dataframe(df_final.head(50))
+                
+                # --- ALTERAÇÃO APLICADA AQUI ---
+                st.markdown("---")
+                # Adicionar um spinner enquanto o arquivo Excel é gerado em memória
+                with st.spinner('Preparando sua planilha para download... ⏳'):
+                    excel_buffer_final = io.BytesIO()
+                    # Salva o DataFrame completo, não apenas a pré-visualização
+                    df_final.to_excel(excel_buffer_final, index=False, engine='xlsxwriter')
+                    time.sleep(1) # Pequena pausa para garantir que o spinner seja visível
+                
+                # O spinner desaparece automaticamente aqui, e o botão aparece
+                st.download_button(
+                    label="⬇ Baixar Planilha de Análise Completa (.xlsx)",
+                    data=excel_buffer_final.getvalue(),
+                    file_name="analise_de_erros_TISS.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    type="primary"
+                )
                 
         except Exception as e:
             st.error(f"Ocorreu um erro durante a análise: {e}")
