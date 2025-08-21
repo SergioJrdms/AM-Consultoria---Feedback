@@ -446,12 +446,11 @@ def parse_xtr(file):
     return df_errors
 
 
-@st.cache_data
 def parse_xtr_para_relatorio_wide(file):
     """
     Analisa um arquivo .XTR e cria um DataFrame "largo" (uma linha por guia).
-    MODIFICADO: Captura o primeiro erro de guia e TODOS os erros de procedimento,
-    armazenando os erros de procedimento em uma lista para processamento posterior.
+    VERSÃO FINAL: Captura TODOS os erros de guia e TODOS os erros de procedimento,
+    armazenando ambos em listas separadas para processamento dinâmico.
     """
     file.seek(0)
     content = file.read().decode('iso-8859-1')
@@ -475,16 +474,18 @@ def parse_xtr_para_relatorio_wide(file):
             'numeroGuiaOperadora': guia_rejeitada.findtext('ans:numeroGuiaOperadora', default='', namespaces=ns),
             'identificadorReembolso': guia_rejeitada.findtext('ans:identificadorReembolso', default='', namespaces=ns),
             'dataProcessamento': guia_rejeitada.findtext('ans:dataProcessamento', default='', namespaces=ns),
-            'lista_erros_proc': []  # Inicializa a lista de erros de procedimento
+            'lista_erros_guia': [],  # Lista para erros da guia
+            'lista_erros_proc': []  # Lista para erros de procedimento
         }
 
-        # Captura o PRIMEIRO erro de guia (geralmente há apenas um)
-        primeiro_erro_guia = guia_rejeitada.find('ans:errosGuia', ns)
-        if primeiro_erro_guia is not None:
-            guia_data['guia_identificadorCampo'] = primeiro_erro_guia.findtext(
-                'ans:identificadorCampo', default='', namespaces=ns)
-            guia_data['guia_codigoErro'] = primeiro_erro_guia.findtext(
-                'ans:codigoErro', default='', namespaces=ns)
+        # Captura TODOS os erros de guia
+        todos_erros_guia = guia_rejeitada.findall('ans:errosGuia', ns)
+        for erro_guia in todos_erros_guia:
+            erro_info = {
+                'guia_identificadorCampo': erro_guia.findtext('ans:identificadorCampo', default='', namespaces=ns),
+                'guia_codigoErro': erro_guia.findtext('ans:codigoErro', default='', namespaces=ns)
+            }
+            guia_data['lista_erros_guia'].append(erro_info)
 
         # Captura TODOS os erros de procedimento
         item_erro_block = guia_rejeitada.find('ans:errosItensGuia', ns)
@@ -496,7 +497,6 @@ def parse_xtr_para_relatorio_wide(file):
                 guia_data['proc_codigoProcedimento'] = ident_proc.findtext(
                     'ans:Procedimento/ans:codigoProcedimento', default='', namespaces=ns)
 
-            # Encontra TODAS as relações de erro para o item
             todas_relacoes_erro = item_erro_block.findall(
                 'ans:relacaoErros', ns)
             for relacao_erro in todas_relacoes_erro:
@@ -513,9 +513,9 @@ def parse_xtr_para_relatorio_wide(file):
 
 def converter_xtr_para_xlsx(uploaded_xtr_files):
     """
-    Converte arquivos XTR em uma planilha Excel IDÊNTICA ao modelo da imagem.
-    MODIFICADO: Agora expande múltiplos erros de procedimento em colunas dinâmicas
-    (ex: identificadorCampo.1, codigoErro.1, identificadorCampo.2, codigoErro.2, etc.).
+    Converte arquivos XTR em uma planilha Excel.
+    VERSÃO FINAL: Expande múltiplos erros de GUIA (amarelo) e múltiplos erros
+    de PROCEDIMENTO (azul) em colunas dinâmicas.
     """
     if not uploaded_xtr_files:
         return None, None
@@ -526,50 +526,56 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
     if df_raw.empty:
         return None, None
 
-    # --- LÓGICA DE EXPANSÃO DOS ERROS DE PROCEDIMENTO ---
-    erros_expandidos = df_raw['lista_erros_proc'].apply(pd.Series)
-
-    # Encontra o número máximo de erros para criar as colunas
-    max_erros = len(erros_expandidos.columns)
-
+    # --- LÓGICA DE EXPANSÃO DOS ERROS DE GUIA E PROCEDIMENTO ---
     df_final = df_raw.copy()
 
-    # Renomeia e adiciona as colunas de erro expandidas ao dataframe final
-    for i in range(max_erros):
-        col_erros = erros_expandidos[i].apply(pd.Series)
-        df_final[f'identificadorCampo.{i+1}'] = col_erros.get(
+    # Expande erros de GUIA
+    erros_guia_expandidos = df_final['lista_erros_guia'].apply(pd.Series)
+    max_erros_guia = len(erros_guia_expandidos.columns)
+    for i in range(max_erros_guia):
+        col_erros = erros_guia_expandidos[i].apply(pd.Series)
+        df_final[f'identificadorCampo_guia.{i+1}'] = col_erros.get(
+            'guia_identificadorCampo', '')
+        df_final[f'codigoErro_guia.{i+1}'] = col_erros.get(
+            'guia_codigoErro', '')
+
+    # Expande erros de PROCEDIMENTO
+    erros_proc_expandidos = df_final['lista_erros_proc'].apply(pd.Series)
+    max_erros_proc = len(erros_proc_expandidos.columns)
+    for i in range(max_erros_proc):
+        col_erros = erros_proc_expandidos[i].apply(pd.Series)
+        df_final[f'identificadorCampo_proc.{i+1}'] = col_erros.get(
             'proc_identificadorCampo', '')
-        df_final[f'codigoErro.{i+1}'] = col_erros.get('proc_codigoErro', '')
+        df_final[f'codigoErro_proc.{i+1}'] = col_erros.get(
+            'proc_codigoErro', '')
 
-    # Limpa colunas intermediárias
-    df_final = df_final.drop(columns=['lista_erros_proc'])
-
-    # Renomeia colunas da guia e do procedimento base
-    df_final = df_final.rename(columns={
-        'guia_identificadorCampo': 'identificadorCampo',
-        'guia_codigoErro': 'codigoErro',
-        'proc_codigoTabela': 'codigoTabela',
-        'proc_codigoProcedimento': 'codigoProcedimento',
-    })
+    # Limpa colunas de lista intermediárias
+    df_final = df_final.drop(columns=['lista_erros_guia', 'lista_erros_proc'])
 
     # --- MONTAGEM DA ORDEM FINAL DAS COLUNAS ---
     colunas_base = [
         'Nome da Origem', 'tipoRegistroANS', 'registroANS', 'CNES', 'CNPJ_CPF',
-        'numeroGuiaPrestador', 'numeroGuiaOperadora', 'identificadorReembolso', 'dataProcessamento',
-        'identificadorCampo', 'codigoErro', 'codigoTabela', 'codigoProcedimento'
+        'numeroGuiaPrestador', 'numeroGuiaOperadora', 'identificadorReembolso', 'dataProcessamento'
     ]
 
-    colunas_erros_proc = []
-    for i in range(1, max_erros + 1):
-        colunas_erros_proc.append(f'identificadorCampo.{i}')
-        colunas_erros_proc.append(f'codigoErro.{i}')
+    colunas_erros_guia = []
+    for i in range(1, max_erros_guia + 1):
+        colunas_erros_guia.append(f'identificadorCampo_guia.{i}')
+        colunas_erros_guia.append(f'codigoErro_guia.{i}')
 
-    final_column_order = colunas_base + colunas_erros_proc
+    colunas_proc_base = ['proc_codigoTabela', 'proc_codigoProcedimento']
+
+    colunas_erros_proc = []
+    for i in range(1, max_erros_proc + 1):
+        colunas_erros_proc.append(f'identificadorCampo_proc.{i+1}')
+        colunas_erros_proc.append(f'codigoErro_proc.{i+1}')
+
+    final_column_order = colunas_base + colunas_erros_guia + \
+        colunas_proc_base + colunas_erros_proc
 
     for col in final_column_order:
         if col not in df_final.columns:
             df_final[col] = ''
-
     df_final = df_final[final_column_order]
     df_final.fillna('', inplace=True)
 
@@ -582,9 +588,7 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
         workbook = writer.book
         worksheet = writer.sheets['Modelo XTR']
 
-        # Definição de Formatos (idênticos ao original)
-        merged_header_format = workbook.add_format(
-            {'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#E0E0E0', 'border': 1})
+        # Definição de Formatos
         main_header_format = workbook.add_format(
             {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': 1, 'text_wrap': True})
         error_guide_header_format = workbook.add_format(
@@ -601,31 +605,37 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
             {'border': 1, 'valign': 'top', 'text_wrap': True})
 
         # --- LÓGICA DE CABEÇALHOS DINÂMICOS ---
-        # Cabeçalhos fixos
-        for i in range(9):
+        for i in range(len(colunas_base)):
             worksheet.merge_range(
-                1, i, 2, i, df_final.columns[i], main_header_format)
+                1, i, 2, i, colunas_base[i], main_header_format)
 
-        # Cabeçalho ERRO GUIA
-        worksheet.merge_range('J2:K2', 'ERRO GUIA', error_guide_header_format)
-        worksheet.write(2, 9, 'identificadorCampo', sub_header_format)
-        worksheet.write(2, 10, 'codigoErro', sub_header_format)
+        start_col_guia_err = len(colunas_base)
+        end_col_guia_err = start_col_guia_err + len(colunas_erros_guia) - 1
 
-        # Cabeçalho ERRO PROCEDIMENTO (agora dinâmico)
-        if max_erros > 0:
-            start_col_proc = 11
-            end_col_proc = start_col_proc + 1 + (max_erros * 2) - 1
+        start_col_proc = end_col_guia_err + 1
+        end_col_proc = start_col_proc + \
+            len(colunas_proc_base) + len(colunas_erros_proc) - 1
+
+        if max_erros_guia > 0:
+            worksheet.merge_range(
+                1, start_col_guia_err, 1, end_col_guia_err, 'ERRO GUIA', error_guide_header_format)
+            col_idx = start_col_guia_err
+            for i in range(1, max_erros_guia + 1):
+                worksheet.write(
+                    2, col_idx, f'identificadorCampo.{i}', sub_header_format)
+                worksheet.write(
+                    2, col_idx + 1, f'codigoErro.{i}', sub_header_format)
+                col_idx += 2
+
+        if max_erros_proc > 0 or df_final['proc_codigoTabela'].notna().any():
             worksheet.merge_range(
                 1, start_col_proc, 1, end_col_proc, 'ERRO PROCEDIMENTO', error_proc_header_format)
-
-            # Sub-cabeçalhos do procedimento
             worksheet.write(2, start_col_proc,
                             'codigoTabela', sub_header_format)
             worksheet.write(2, start_col_proc + 1,
                             'codigoProcedimento', sub_header_format)
-
             col_idx = start_col_proc + 2
-            for i in range(1, max_erros + 1):
+            for i in range(1, max_erros_proc + 1):
                 worksheet.write(
                     2, col_idx, f'identificadorCampo.{i}', sub_header_format)
                 worksheet.write(
@@ -633,32 +643,21 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
                 col_idx += 2
 
         # Formatação das Células de Dados
-        num_rows = len(df_final)
-        num_cols = len(df_final.columns)
-        for row_num in range(num_rows):
-            for col_num in range(num_cols):
+        for row_num in range(len(df_final)):
+            for col_num in range(len(df_final.columns)):
                 cell_value = df_final.iloc[row_num, col_num]
-
-                # Colunas de erro da guia (amarelas)
-                if 9 <= col_num <= 10:
+                if start_col_guia_err <= col_num <= end_col_guia_err:
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, yellow_data_format)
-                # Colunas de erro de procedimento (azuis)
-                elif col_num >= 11:
+                elif start_col_proc <= col_num <= end_col_proc:
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, blue_data_format)
-                # Outras colunas
                 else:
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, default_data_format)
 
-        # Ajuste Final de Layout
         worksheet.set_column('A:A', 30)
-        worksheet.set_column('B:O', 22)  # Ajuste genérico para mais colunas
-        # Ajuste dinâmico para colunas de erro adicionais, se houver muitas
-        if num_cols > 15:  # 15 é a letra 'O'
-            worksheet.set_column(15, num_cols - 1, 22)
-
+        worksheet.set_column(1, len(df_final.columns) - 1, 22)
         worksheet.freeze_panes(3, 0)
 
     return excel_buffer.getvalue(), len(df_final)
@@ -666,9 +665,9 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
 
 def converter_xtr_para_xlsx(uploaded_xtr_files):
     """
-    Converte arquivos XTR em uma planilha Excel IDÊNTICA ao modelo da imagem.
-    MODIFICADO: Agora expande múltiplos erros de procedimento em colunas dinâmicas
-    (ex: identificadorCampo.1, codigoErro.1, identificadorCampo.2, codigoErro.2, etc.).
+    Converte arquivos XTR em uma planilha Excel.
+    VERSÃO FINAL CORRIGIDA: Expande múltiplos erros de GUIA (amarelo) e múltiplos erros
+    de PROCEDIMENTO (azul) em colunas dinâmicas.
     """
     if not uploaded_xtr_files:
         return None, None
@@ -679,54 +678,91 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
     if df_raw.empty:
         return None, None
 
-    # --- LÓGICA DE EXPANSÃO DOS ERROS DE PROCEDIMENTO ---
-    erros_expandidos = df_raw['lista_erros_proc'].apply(pd.Series)
-
-    # Encontra o número máximo de erros para criar as colunas
-    max_erros = len(erros_expandidos.columns)
-
     df_final = df_raw.copy()
 
-    # Renomeia e adiciona as colunas de erro expandidas ao dataframe final
-    for i in range(max_erros):
-        col_erros = erros_expandidos[i].apply(pd.Series)
-        df_final[f'identificadorCampo.{i+1}'] = col_erros.get(
-            'proc_identificadorCampo', '')
-        df_final[f'codigoErro.{i+1}'] = col_erros.get('proc_codigoErro', '')
+    # --- LÓGICA DE EXPANSÃO CORRIGIDA ---
 
-    # Limpa colunas intermediárias
-    df_final = df_final.drop(columns=['lista_erros_proc'])
+    # Expande erros de GUIA de forma robusta
+    max_erros_guia = 0
+    if 'lista_erros_guia' in df_final.columns:
+        rows_guia_errors = []
+        # Itera sobre a coluna que contém as listas de erros
+        for error_list in df_final['lista_erros_guia']:
+            flat_errors = {}
+            if isinstance(error_list, list):
+                # Atualiza o número máximo de erros encontrados
+                if len(error_list) > max_erros_guia:
+                    max_erros_guia = len(error_list)
+                # Cria um dicionário com as colunas numeradas
+                for i, error_dict in enumerate(error_list):
+                    flat_errors[f'identificadorCampo_guia.{i+1}'] = error_dict.get(
+                        'guia_identificadorCampo', '')
+                    flat_errors[f'codigoErro_guia.{i+1}'] = error_dict.get(
+                        'guia_codigoErro', '')
+            rows_guia_errors.append(flat_errors)
 
-    # Renomeia colunas da guia e do procedimento base
-    df_final = df_final.rename(columns={
-        'guia_identificadorCampo': 'identificadorCampo',
-        'guia_codigoErro': 'codigoErro',
-        'proc_codigoTabela': 'codigoTabela',
-        'proc_codigoProcedimento': 'codigoProcedimento',
-    })
+        if rows_guia_errors:
+            # Cria um DataFrame com os erros expandidos e junta ao principal
+            df_guia_errors_flat = pd.DataFrame(
+                rows_guia_errors, index=df_final.index)
+            df_final = pd.concat([df_final, df_guia_errors_flat], axis=1)
+
+    # Expande erros de PROCEDIMENTO de forma robusta
+    max_erros_proc = 0
+    if 'lista_erros_proc' in df_final.columns:
+        rows_proc_errors = []
+        for error_list in df_final['lista_erros_proc']:
+            flat_errors = {}
+            if isinstance(error_list, list):
+                if len(error_list) > max_erros_proc:
+                    max_erros_proc = len(error_list)
+                for i, error_dict in enumerate(error_list):
+                    flat_errors[f'identificadorCampo_proc.{i+1}'] = error_dict.get(
+                        'proc_identificadorCampo', '')
+                    flat_errors[f'codigoErro_proc.{i+1}'] = error_dict.get(
+                        'proc_codigoErro', '')
+            rows_proc_errors.append(flat_errors)
+
+        if rows_proc_errors:
+            df_proc_errors_flat = pd.DataFrame(
+                rows_proc_errors, index=df_final.index)
+            df_final = pd.concat([df_final, df_proc_errors_flat], axis=1)
+
+    # Limpa colunas de lista intermediárias
+    if 'lista_erros_guia' in df_final.columns:
+        df_final = df_final.drop(columns=['lista_erros_guia'])
+    if 'lista_erros_proc' in df_final.columns:
+        df_final = df_final.drop(columns=['lista_erros_proc'])
 
     # --- MONTAGEM DA ORDEM FINAL DAS COLUNAS ---
     colunas_base = [
         'Nome da Origem', 'tipoRegistroANS', 'registroANS', 'CNES', 'CNPJ_CPF',
-        'numeroGuiaPrestador', 'numeroGuiaOperadora', 'identificadorReembolso', 'dataProcessamento',
-        'identificadorCampo', 'codigoErro', 'codigoTabela', 'codigoProcedimento'
+        'numeroGuiaPrestador', 'numeroGuiaOperadora', 'identificadorReembolso', 'dataProcessamento'
     ]
 
-    colunas_erros_proc = []
-    for i in range(1, max_erros + 1):
-        colunas_erros_proc.append(f'identificadorCampo.{i}')
-        colunas_erros_proc.append(f'codigoErro.{i}')
+    colunas_erros_guia = []
+    for i in range(1, max_erros_guia + 1):
+        colunas_erros_guia.append(f'identificadorCampo_guia.{i}')
+        colunas_erros_guia.append(f'codigoErro_guia.{i}')
 
-    final_column_order = colunas_base + colunas_erros_proc
+    colunas_proc_base = ['proc_codigoTabela', 'proc_codigoProcedimento']
+
+    colunas_erros_proc = []
+    for i in range(1, max_erros_proc + 1):
+        colunas_erros_proc.append(f'identificadorCampo_proc.{i+1}')
+        colunas_erros_proc.append(f'codigoErro_proc.{i+1}')
+
+    final_column_order = colunas_base + colunas_erros_guia + \
+        colunas_proc_base + colunas_erros_proc
 
     for col in final_column_order:
         if col not in df_final.columns:
             df_final[col] = ''
-
     df_final = df_final[final_column_order]
     df_final.fillna('', inplace=True)
 
     # --- GERAÇÃO DO EXCEL FORMATADO ---
+    # (O restante do código para gerar o Excel com xlsxwriter permanece o mesmo da versão anterior)
     excel_buffer = io.BytesIO()
     with pd.ExcelWriter(excel_buffer, engine='xlsxwriter') as writer:
         df_final.to_excel(writer, sheet_name='Modelo XTR',
@@ -735,9 +771,6 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
         workbook = writer.book
         worksheet = writer.sheets['Modelo XTR']
 
-        # Definição de Formatos (idênticos ao original)
-        merged_header_format = workbook.add_format(
-            {'bold': True, 'align': 'center', 'valign': 'vcenter', 'fg_color': '#E0E0E0', 'border': 1})
         main_header_format = workbook.add_format(
             {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': 1, 'text_wrap': True})
         error_guide_header_format = workbook.add_format(
@@ -753,65 +786,58 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
         default_data_format = workbook.add_format(
             {'border': 1, 'valign': 'top', 'text_wrap': True})
 
-        # --- LÓGICA DE CABEÇALHOS DINÂMICOS ---
-        # Cabeçalhos fixos
-        for i in range(9):
+        for i in range(len(colunas_base)):
             worksheet.merge_range(
-                1, i, 2, i, df_final.columns[i], main_header_format)
+                1, i, 2, i, colunas_base[i], main_header_format)
 
-        # Cabeçalho ERRO GUIA
-        worksheet.merge_range('J2:K2', 'ERRO GUIA', error_guide_header_format)
-        worksheet.write(2, 9, 'identificadorCampo', sub_header_format)
-        worksheet.write(2, 10, 'codigoErro', sub_header_format)
+        start_col_guia_err = len(colunas_base)
+        end_col_guia_err = start_col_guia_err + len(colunas_erros_guia) - 1
 
-        # Cabeçalho ERRO PROCEDIMENTO (agora dinâmico)
-        if max_erros > 0:
-            start_col_proc = 11
-            end_col_proc = start_col_proc + 1 + (max_erros * 2) - 1
+        start_col_proc = end_col_guia_err + 1
+        end_col_proc = start_col_proc + \
+            len(colunas_proc_base) + len(colunas_erros_proc) - 1
+
+        if max_erros_guia > 0:
             worksheet.merge_range(
-                1, start_col_proc, 1, end_col_proc, 'ERRO PROCEDIMENTO', error_proc_header_format)
-
-            # Sub-cabeçalhos do procedimento
-            worksheet.write(2, start_col_proc,
-                            'codigoTabela', sub_header_format)
-            worksheet.write(2, start_col_proc + 1,
-                            'codigoProcedimento', sub_header_format)
-
-            col_idx = start_col_proc + 2
-            for i in range(1, max_erros + 1):
+                1, start_col_guia_err, 1, end_col_guia_err, 'ERRO GUIA', error_guide_header_format)
+            col_idx = start_col_guia_err
+            for i in range(1, max_erros_guia + 1):
                 worksheet.write(
                     2, col_idx, f'identificadorCampo.{i}', sub_header_format)
                 worksheet.write(
                     2, col_idx + 1, f'codigoErro.{i}', sub_header_format)
                 col_idx += 2
 
-        # Formatação das Células de Dados
-        num_rows = len(df_final)
-        num_cols = len(df_final.columns)
-        for row_num in range(num_rows):
-            for col_num in range(num_cols):
-                cell_value = df_final.iloc[row_num, col_num]
+        if max_erros_proc > 0 or df_final['proc_codigoTabela'].notna().any():
+            worksheet.merge_range(
+                1, start_col_proc, 1, end_col_proc, 'ERRO PROCEDIMENTO', error_proc_header_format)
+            worksheet.write(2, start_col_proc,
+                            'codigoTabela', sub_header_format)
+            worksheet.write(2, start_col_proc + 1,
+                            'codigoProcedimento', sub_header_format)
+            col_idx = start_col_proc + 2
+            for i in range(1, max_erros_proc + 1):
+                worksheet.write(
+                    2, col_idx, f'identificadorCampo.{i}', sub_header_format)
+                worksheet.write(
+                    2, col_idx + 1, f'codigoErro.{i}', sub_header_format)
+                col_idx += 2
 
-                # Colunas de erro da guia (amarelas)
-                if 9 <= col_num <= 10:
+        for row_num in range(len(df_final)):
+            for col_num in range(len(df_final.columns)):
+                cell_value = df_final.iloc[row_num, col_num]
+                if start_col_guia_err <= col_num <= end_col_guia_err:
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, yellow_data_format)
-                # Colunas de erro de procedimento (azuis)
-                elif col_num >= 11:
+                elif start_col_proc <= col_num <= end_col_proc and col_num >= start_col_proc:  # Added second condition for safety
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, blue_data_format)
-                # Outras colunas
                 else:
                     worksheet.write(row_num + 3, col_num,
                                     cell_value, default_data_format)
 
-        # Ajuste Final de Layout
         worksheet.set_column('A:A', 30)
-        worksheet.set_column('B:O', 22)  # Ajuste genérico para mais colunas
-        # Ajuste dinâmico para colunas de erro adicionais, se houver muitas
-        if num_cols > 15:  # 15 é a letra 'O'
-            worksheet.set_column(15, num_cols - 1, 22)
-
+        worksheet.set_column(1, len(df_final.columns) - 1, 22)
         worksheet.freeze_panes(3, 0)
 
     return excel_buffer.getvalue(), len(df_final)
