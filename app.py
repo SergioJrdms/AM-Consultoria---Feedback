@@ -446,11 +446,12 @@ def parse_xtr(file):
     return df_errors
 
 
+@st.cache_data
 def parse_xtr_para_relatorio_wide(file):
     """
-    Analisa um arquivo .XTR e cria um DataFrame "largo" (uma linha por guia).
-    VERSÃO FINAL: Captura TODOS os erros de guia e TODOS os erros de procedimento,
-    armazenando ambos em listas separadas para processamento dinâmico.
+    Analisa um arquivo .XTR.
+    VERSÃO FINAL (Solução 1): Se uma guia tiver erros em múltiplos procedimentos distintos,
+    cria uma NOVA LINHA para cada procedimento, duplicando os dados da guia.
     """
     file.seek(0)
     content = file.read().decode('iso-8859-1')
@@ -458,13 +459,15 @@ def parse_xtr_para_relatorio_wide(file):
     root = tree.getroot()
     ns = {'ans': 'http://www.ans.gov.br/padroes/tiss/schemas'}
 
-    all_guides_data = []
+    all_rows_data = []
+    # --- LINHA CORRIGIDA ABAIXO ---
     caminho_das_guias = './/ans:resumoProcessamento/ans:registrosRejeitados/ans:guiaMonitoramento'
 
     for guia_rejeitada in root.findall(caminho_das_guias, namespaces=ns):
         contratado = guia_rejeitada.find('ans:contratadoExecutante', ns)
 
-        guia_data = {
+        # 1. Coleta os dados da guia que serão comuns a todas as linhas
+        dados_comuns_guia = {
             'Nome da Origem': file.name,
             'tipoRegistroANS': guia_rejeitada.findtext('ans:tipoRegistro', default='', namespaces=ns),
             'registroANS': root.findtext('.//ans:registroANS', default='', namespaces=ns),
@@ -474,41 +477,56 @@ def parse_xtr_para_relatorio_wide(file):
             'numeroGuiaOperadora': guia_rejeitada.findtext('ans:numeroGuiaOperadora', default='', namespaces=ns),
             'identificadorReembolso': guia_rejeitada.findtext('ans:identificadorReembolso', default='', namespaces=ns),
             'dataProcessamento': guia_rejeitada.findtext('ans:dataProcessamento', default='', namespaces=ns),
-            'lista_erros_guia': [],  # Lista para erros da guia
-            'lista_erros_proc': []  # Lista para erros de procedimento
+            'lista_erros_guia': [],
         }
 
-        # Captura TODOS os erros de guia
+        # Captura todos os erros de guia (que também serão comuns)
         todos_erros_guia = guia_rejeitada.findall('ans:errosGuia', ns)
         for erro_guia in todos_erros_guia:
             erro_info = {
                 'guia_identificadorCampo': erro_guia.findtext('ans:identificadorCampo', default='', namespaces=ns),
                 'guia_codigoErro': erro_guia.findtext('ans:codigoErro', default='', namespaces=ns)
             }
-            guia_data['lista_erros_guia'].append(erro_info)
+            dados_comuns_guia['lista_erros_guia'].append(erro_info)
 
-        # Captura TODOS os erros de procedimento
-        item_erro_block = guia_rejeitada.find('ans:errosItensGuia', ns)
-        if item_erro_block is not None:
-            ident_proc = item_erro_block.find('ans:identProcedimento', ns)
-            if ident_proc is not None:
-                guia_data['proc_codigoTabela'] = ident_proc.findtext(
-                    'ans:codigoTabela', default='', namespaces=ns)
-                guia_data['proc_codigoProcedimento'] = ident_proc.findtext(
-                    'ans:Procedimento/ans:codigoProcedimento', default='', namespaces=ns)
+        # 2. Procura por todos os blocos de erro de procedimento
+        todos_itens_com_erro = guia_rejeitada.findall('ans:errosItensGuia', ns)
 
-            todas_relacoes_erro = item_erro_block.findall(
-                'ans:relacaoErros', ns)
-            for relacao_erro in todas_relacoes_erro:
-                erro_info = {
-                    'proc_identificadorCampo': relacao_erro.findtext('ans:identificadorCampo', default='', namespaces=ns),
-                    'proc_codigoErro': relacao_erro.findtext('ans:codigoErro', default='', namespaces=ns)
-                }
-                guia_data['lista_erros_proc'].append(erro_info)
+        # 3. Decide se cria uma ou múltiplas linhas
+        if not todos_itens_com_erro:
+            # Caso a guia tenha apenas erros de guia, mas nenhum erro de item.
+            # Adiciona uma única linha com os dados da guia.
+            linha_data = dados_comuns_guia.copy()
+            linha_data['lista_erros_proc'] = []
+            all_rows_data.append(linha_data)
+        else:
+            # Caso haja um ou mais blocos de erro de item.
+            # Cria uma linha para CADA bloco encontrado.
+            for item_erro_block in todos_itens_com_erro:
+                linha_data = dados_comuns_guia.copy()  # Copia os dados comuns para a nova linha
+                linha_data['lista_erros_proc'] = []
 
-        all_guides_data.append(guia_data)
+                # Extrai os dados específicos deste procedimento
+                ident_proc = item_erro_block.find('ans:identProcedimento', ns)
+                if ident_proc is not None:
+                    linha_data['proc_codigoTabela'] = ident_proc.findtext(
+                        'ans:codigoTabela', default='', namespaces=ns)
+                    linha_data['proc_codigoProcedimento'] = ident_proc.findtext(
+                        'ans:Procedimento/ans:codigoProcedimento', default='', namespaces=ns)
 
-    return pd.DataFrame(all_guides_data)
+                # Extrai os erros específicos deste procedimento
+                todas_relacoes_erro = item_erro_block.findall(
+                    'ans:relacaoErros', ns)
+                for relacao_erro in todas_relacoes_erro:
+                    erro_info = {
+                        'proc_identificadorCampo': relacao_erro.findtext('ans:identificadorCampo', default='', namespaces=ns),
+                        'proc_codigoErro': relacao_erro.findtext('ans:codigoErro', default='', namespaces=ns)
+                    }
+                    linha_data['lista_erros_proc'].append(erro_info)
+
+                all_rows_data.append(linha_data)
+
+    return pd.DataFrame(all_rows_data)
 
 
 def converter_xtr_para_xlsx(uploaded_xtr_files):
