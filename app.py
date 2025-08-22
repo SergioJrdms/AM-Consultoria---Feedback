@@ -585,8 +585,8 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
 
     colunas_erros_proc = []
     for i in range(1, max_erros_proc + 1):
-        colunas_erros_proc.append(f'identificadorCampo_proc.{i+1}')
-        colunas_erros_proc.append(f'codigoErro_proc.{i+1}')
+        colunas_erros_proc.append(f'identificadorCampo_proc.{i}')
+        colunas_erros_proc.append(f'codigoErro_proc.{i}')
 
     final_column_order = colunas_base + colunas_erros_guia + \
         colunas_proc_base + colunas_erros_proc
@@ -767,8 +767,8 @@ def converter_xtr_para_xlsx(uploaded_xtr_files):
 
     colunas_erros_proc = []
     for i in range(1, max_erros_proc + 1):
-        colunas_erros_proc.append(f'identificadorCampo_proc.{i+1}')
-        colunas_erros_proc.append(f'codigoErro_proc.{i+1}')
+        colunas_erros_proc.append(f'identificadorCampo_proc.{i}')
+        colunas_erros_proc.append(f'codigoErro_proc.{i}')
 
     final_column_order = colunas_base + colunas_erros_guia + \
         colunas_proc_base + colunas_erros_proc
