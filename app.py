@@ -257,7 +257,6 @@ def carregar_erros_ans():
 129-5084,"UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - O erro está no campo: Unidade de medida de itens assistenciais que compõem o pacote"
 129-5085,"UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - O erro está no campo: Unidade de medida de itens assistenciais que compõem o pacote"
 
-
 """
     data_file = io.StringIO(csv_data)
     df = pd.read_csv(data_file)
@@ -406,8 +405,9 @@ def parse_xte(file):
 @st.cache_data
 def parse_xtr(file):
     """
-    Analisa um arquivo .XTR e cria um DataFrame "longo" (uma linha por erro),
-    com uma coluna 'codigoErroUnico' que concatena o código do erro e o campo.
+    Analisa um arquivo .XTR. Para erros de item, agora extrai o código do 
+    procedimento associado para permitir um cruzamento preciso. Para erros de guia,
+    os campos de procedimento ficam vazios.
     """
     file.seek(0)
     content = file.read().decode('iso-8859-1')
@@ -419,30 +419,58 @@ def parse_xtr(file):
     caminho_das_guias = './/ans:resumoProcessamento/ans:registrosRejeitados/ans:guiaMonitoramento'
 
     for guia_rejeitada in root.findall(caminho_das_guias, namespaces=ns):
-        guia_info = {
+        guia_info_base = {
             'nomeArquivo_xtr': file.name,
             'numeroGuiaOperadora_xtr': guia_rejeitada.findtext('ans:numeroGuiaOperadora', default='', namespaces=ns).strip()
         }
 
-        # Função interna para processar e concatenar um nó de erro
-        def processar_erro_node(erro_node):
+        # 1. Processa erros de GUIA
+        # Estes erros não têm um procedimento específico associado.
+        erros_guia_nodes = guia_rejeitada.findall(
+            'ans:errosGuia', namespaces=ns)
+        for erro_node in erros_guia_nodes:
             codigo_erro = erro_node.findtext(
                 'ans:codigoErro', default='', namespaces=ns).strip()
             id_campo = erro_node.findtext(
                 'ans:identificadorCampo', default='', namespaces=ns).strip()
             if codigo_erro and id_campo:
-                linha = guia_info.copy()
-                linha['codigoErroUnico'] = f"{id_campo}-{codigo_erro}"
+                linha = guia_info_base.copy()
+                linha['tipoErro'] = 'Guia'
+                linha['codigoErroUnico'] = f"Guia_{id_campo}-{codigo_erro}"
+                linha['proc_codigoTabela_xtr'] = None
+                linha['proc_codigoProcedimento_xtr'] = None
                 all_errors.append(linha)
 
-        # Processa erros de guia
-        for erro in guia_rejeitada.findall('ans:errosGuia', namespaces=ns):
-            processar_erro_node(erro)
+        # 2. Processa erros de ITEM
+        # Estes erros estão ligados a um procedimento específico.
+        erros_itens_nodes = guia_rejeitada.findall(
+            'ans:errosItensGuia', namespaces=ns)
+        for item_erro_block in erros_itens_nodes:
+            # Extrai a identificação do procedimento para este bloco de erros
+            ident_proc = item_erro_block.find('ans:identProcedimento', ns)
+            codigo_tabela = ''
+            codigo_procedimento = ''
+            if ident_proc is not None:
+                codigo_tabela = ident_proc.findtext(
+                    'ans:codigoTabela', default='', namespaces=ns)
+                proc_node = ident_proc.find('ans:Procedimento', ns)
+                if proc_node is not None:
+                    codigo_procedimento = proc_node.findtext(
+                        'ans:codigoProcedimento', default='', namespaces=ns)
 
-        # Processa erros de item
-        for item_erro in guia_rejeitada.findall('ans:errosItensGuia', namespaces=ns):
-            for relacao_erro in item_erro.findall('ans:relacaoErros', namespaces=ns):
-                processar_erro_node(relacao_erro)
+            # Itera sobre os erros deste procedimento
+            for relacao_erro in item_erro_block.findall('ans:relacaoErros', ns):
+                codigo_erro = relacao_erro.findtext(
+                    'ans:codigoErro', default='', namespaces=ns).strip()
+                id_campo = relacao_erro.findtext(
+                    'ans:identificadorCampo', default='', namespaces=ns).strip()
+                if codigo_erro and id_campo:
+                    linha = guia_info_base.copy()
+                    linha['tipoErro'] = 'Item'
+                    linha['codigoErroUnico'] = f"Item_{id_campo}-{codigo_erro}"
+                    linha['proc_codigoTabela_xtr'] = codigo_tabela
+                    linha['proc_codigoProcedimento_xtr'] = codigo_procedimento
+                    all_errors.append(linha)
 
     df_errors = pd.DataFrame(all_errors)
     return df_errors
@@ -940,12 +968,12 @@ if st.button("Analisar Erros", type="primary"):
 
             # Passo 1: Consolidar XTE
             log_leitura_xte.info(
-                "Passo 1: Consolidando arquivos de envio (.xte)... ⏳")
+                "Passo 1/7: Consolidando arquivos de envio (.xte)... ⏳")
             df_xte_list = [parse_xte(f)[0] for f in uploaded_xte_files]
             df_xte_full = pd.concat(df_xte_list, ignore_index=True)
             progress_bar.progress(14)
             log_leitura_xte.success(
-                f"Passo 1: Arquivos XTE consolidados! ✅ ({len(df_xte_full)} registros)")
+                f"Passo 1/7: Arquivos XTE consolidados! ✅ ({len(df_xte_full)} registros)")
 
             excel_buffer_xte = io.BytesIO()
             df_xte_full.to_excel(
@@ -960,17 +988,18 @@ if st.button("Analisar Erros", type="primary"):
 
             # Passo 2: Consolidar XTR e Gerar Planilha Formatada
             log_leitura_xtr.info(
-                "Passo 2: Consolidando e formatando arquivos de retorno (.xtr)... ⏳")
+                "Passo 2/7: Consolidando e formatando arquivos de retorno (.xtr)... ⏳")
 
             excel_data_xtr, total_erros = converter_xtr_para_xlsx(
                 uploaded_xtr_files)
 
             progress_bar.progress(28)
             log_leitura_xtr.success(
-                f"Passo 2: Arquivos XTR consolidados e formatados! ✅ ({total_erros} erros reportados)")
+                f"Passo 2/7: Arquivos XTR consolidados e formatados! ✅ ({total_erros} erros reportados)")
 
             if excel_data_xtr is not None:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                timestamp = datetime.now(pytz.timezone(
+                    'America/Sao_Paulo')).strftime("%Y%m%d_%H%M%S")
                 filename_xtr = f"erros_XTR_formatado_{timestamp}.xlsx"
 
                 download_xtr_placeholder.download_button(
@@ -983,7 +1012,7 @@ if st.button("Analisar Erros", type="primary"):
                 download_xtr_placeholder.empty()
             time.sleep(1)
 
-            # É necessário recarregar os dados do XTR para a proxima etapa, pois a função de conversão os consome
+            # É necessário recarregar os dados do XTR para a proxima etapa
             df_xtr_list = [parse_xtr(f) for f in uploaded_xtr_files]
             df_xtr_full = pd.concat(df_xtr_list, ignore_index=True)
 
@@ -998,77 +1027,127 @@ if st.button("Analisar Erros", type="primary"):
                 "Passo 3/7: Padrão de erros carregado! ✅")
             time.sleep(1)
 
-            # Passo 4: Preparar Chaves de Cruzamento
+            # Passo 4: Preparar Nomes Base dos Arquivos
             status_placeholder.info(
-                "Passo 4/7: Preparando chaves de cruzamento nos dados... ⏳")
+                "Passo 4/7: Preparando nomes base dos arquivos para cruzamento... ⏳")
             df_xte_full['nomeArquivo_base'] = df_xte_full['Nome da Origem'].apply(
                 lambda x: os.path.splitext(x)[0])
-            df_xte_full['chave_cruzamento'] = df_xte_full['nomeArquivo_base'].astype(
-                str) + "_" + df_xte_full['numeroGuia_operadora'].astype(str)
             if not df_xtr_full.empty:
                 df_xtr_full['nomeArquivo_base'] = df_xtr_full['nomeArquivo_xtr'].apply(
                     lambda x: os.path.splitext(x)[0])
-                df_xtr_full['chave_cruzamento'] = df_xtr_full['nomeArquivo_base'].astype(
-                    str) + "_" + df_xtr_full['numeroGuiaOperadora_xtr'].astype(str)
             progress_bar.progress(56)
             status_placeholder.success(
-                "Passo 4/7: Chaves de cruzamento preparadas! ✅")
+                "Passo 4/7: Nomes base preparados! ✅")
             time.sleep(1)
 
-            # Passo 5: Agrupar Erros por Guia
+            # Passo 5: Separar e Agrupar Erros por Tipo (Guia vs. Item)
             status_placeholder.info(
-                "Passo 5/7: Agrupando os erros por guia... ⏳")
-            erros_agrupados = pd.DataFrame(columns=['chave_cruzamento'])
+                "Passo 5/7: Separando e agrupando erros por tipo... ⏳")
+
             if not df_xtr_full.empty:
-                # Agrupa todos os códigos de erro únicos em uma lista para cada guia
-                erros_agrupados = df_xtr_full.groupby('chave_cruzamento')[
-                    'codigoErroUnico'].unique().apply(list).reset_index()
-                erros_agrupados.rename(
-                    columns={'codigoErroUnico': 'lista_erros'}, inplace=True)
+                df_xtr_full['proc_codigoProcedimento_xtr'] = df_xtr_full['proc_codigoProcedimento_xtr'].astype(
+                    str).fillna('')
+                df_xte_full['codigoProcedimento'] = df_xte_full['codigoProcedimento'].astype(
+                    str).fillna('')
+
+                df_xte_full['chave_guia'] = df_xte_full['nomeArquivo_base'].astype(
+                    str) + "_" + df_xte_full['numeroGuia_operadora'].astype(str)
+                df_xte_full['chave_procedimento'] = df_xte_full['chave_guia'] + \
+                    "_" + df_xte_full['codigoProcedimento']
+
+                df_xtr_full['chave_guia'] = df_xtr_full['nomeArquivo_base'].astype(
+                    str) + "_" + df_xtr_full['numeroGuiaOperadora_xtr'].astype(str)
+                df_xtr_full['chave_procedimento'] = df_xtr_full['chave_guia'] + \
+                    "_" + df_xtr_full['proc_codigoProcedimento_xtr']
+
+                erros_guia = df_xtr_full[df_xtr_full['tipoErro'] == 'Guia']
+                erros_item = df_xtr_full[df_xtr_full['tipoErro'] == 'Item']
+
+                guia_erros_agrupados = erros_guia.groupby('chave_guia')['codigoErroUnico'].unique(
+                ).apply(list).reset_index().rename(columns={'codigoErroUnico': 'lista_erros_guia'})
+                item_erros_agrupados = erros_item.groupby('chave_procedimento')['codigoErroUnico'].unique(
+                ).apply(list).reset_index().rename(columns={'codigoErroUnico': 'lista_erros_item'})
+            else:  # Caso não haja erros, cria dataframes vazios para evitar erros posteriores
+                guia_erros_agrupados = pd.DataFrame(
+                    columns=['chave_guia', 'lista_erros_guia'])
+                item_erros_agrupados = pd.DataFrame(
+                    columns=['chave_procedimento', 'lista_erros_item'])
 
             progress_bar.progress(70)
             status_placeholder.success(
                 "Passo 5/7: Erros agrupados com sucesso! ✅")
             time.sleep(1)
 
-            # Passo 6: Juntar Dados Originais com a Lista de Erros
+            # Passo 6: Juntar Dados em Duas Etapas
             status_placeholder.info(
-                "Passo 6/7: Cruzando dados originais com as listas de erros... ⏳")
+                "Passo 6/7: Cruzando dados originais com erros de item e guia... ⏳")
+
             df_analise = pd.merge(
-                df_xte_full, erros_agrupados, on='chave_cruzamento', how='inner')
+                df_xte_full, item_erros_agrupados, on='chave_procedimento', how='left')
+            df_analise = pd.merge(
+                df_analise, guia_erros_agrupados, on='chave_guia', how='left')
+
+            df_analise = df_analise[df_analise['lista_erros_item'].notna(
+            ) | df_analise['lista_erros_guia'].notna()].copy()
+
+            # --- LINHA CORRIGIDA ---
+            # Função auxiliar para combinar listas de forma segura, tratando valores NaN
+            def safe_combine_lists(row):
+                guia_errors = row['lista_erros_guia'] if isinstance(
+                    row['lista_erros_guia'], list) else []
+                item_errors = row['lista_erros_item'] if isinstance(
+                    row['lista_erros_item'], list) else []
+                return guia_errors + item_errors
+
+            df_analise['lista_erros'] = df_analise.apply(
+                safe_combine_lists, axis=1)
+            # --- FIM DA CORREÇÃO ---
+
             progress_bar.progress(85)
             status_placeholder.success(
                 "Passo 6/7: Guias com erro identificadas e cruzadas! ✅")
             time.sleep(1)
 
-            # Passo 7: Criar Colunas de Erro Dinamicamente e Organizar
+            # Passo 7: Montar Relatório Final com Colunas de Erro
             status_placeholder.info(
                 "Passo 7/7: Montando o relatório final com colunas de erro... ⏳")
 
             error_map = pd.Series(
                 df_ans_errors.descricaoErro.values, index=df_ans_errors.codigoErroUnico).to_dict()
-
             df_final = df_analise.copy()
+
             if not df_final.empty and 'lista_erros' in df_final.columns:
-                unique_errors_in_batch = sorted(
-                    list(set(e for lista in df_final['lista_erros'] for e in lista)))
+                unique_errors_in_batch = sorted(list(set(
+                    e for lista in df_final['lista_erros'] if isinstance(lista, list) for e in lista)))
 
-                for error_code in unique_errors_in_batch:
-                    col_name = f"Erro_{error_code}"
+                for error_code_with_prefix in unique_errors_in_batch:
+                    col_name = f"Erro_{error_code_with_prefix}"
+                    original_error_code = error_code_with_prefix.split('_', 1)[
+                        1]
                     description = error_map.get(
-                        error_code, f"Descrição não encontrada para {error_code}")
+                        original_error_code, f"Descrição não encontrada para {original_error_code}")
+
                     df_final[col_name] = df_final['lista_erros'].apply(
-                        lambda x: description if error_code in x else None)
+                        lambda x: description if isinstance(x, list) and error_code_with_prefix in x else None)
 
-            original_cols = list(df_xte_full.columns.drop(
-                ['nomeArquivo_base', 'chave_cruzamento']))
-            error_cols = sorted(
-                [col for col in df_final.columns if col.startswith('Erro_')])
+            original_cols = [col for col in df_xte_full.columns if col not in [
+                'chave_guia', 'chave_procedimento', 'nomeArquivo_base']]
+            all_error_cols = [
+                col for col in df_final.columns if col.startswith('Erro_')]
+            guia_error_cols = sorted(
+                [col for col in all_error_cols if col.startswith('Erro_Guia_')])
+            item_error_cols = sorted(
+                [col for col in all_error_cols if col.startswith('Erro_Item_')])
+            ordered_error_cols = guia_error_cols + item_error_cols
 
-            if 'lista_erros' in df_final.columns:
-                df_final.drop(columns=['lista_erros'], inplace=True)
+            cols_to_drop = ['lista_erros_guia', 'lista_erros_item', 'lista_erros',
+                            'chave_guia', 'chave_procedimento', 'nomeArquivo_base']
+            df_final.drop(columns=[
+                          col for col in cols_to_drop if col in df_final.columns], inplace=True, errors='ignore')
 
-            df_final = df_final[original_cols + error_cols]
+            final_order = original_cols + ordered_error_cols
+            df_final = df_final[[
+                col for col in final_order if col in df_final.columns]]
 
             progress_bar.progress(100)
             status_placeholder.success(
@@ -1083,7 +1162,7 @@ if st.button("Analisar Erros", type="primary"):
                     "Nenhuma correspondência de guia com erro encontrada. Verifique se os nomes dos arquivos XTE e XTR correspondem.")
             else:
                 st.success(
-                    f"🎉 Análise concluída! Foram encontradas {len(df_final)} linhas de procedimento nas guias com erro.")
+                    f"🎉 Análise concluída! Foram encontradas {len(df_final)} linhas de procedimento em guias com erro.")
                 st.markdown(
                     "Abaixo está uma **pré-visualização** do resultado:")
                 st.dataframe(df_final)
@@ -1105,4 +1184,5 @@ if st.button("Analisar Erros", type="primary"):
 
         except Exception as e:
             st.error(f"Ocorreu um erro durante a análise: {e}")
-            st.error("Verifique se os arquivos estão no formato correto.")
+            st.error(
+                "Verifique se os arquivos estão no formato correto e se correspondem.")
