@@ -23,368 +23,234 @@ def carregar_erros_ans():
     O código do termo agora é a concatenação 'codigoErro-identificadorCampo'.
     """
     csv_data = """codigoErroUnico,descricaoErro
-00-5001,Motivo Glosa: MENSAGEM ELETRÔNICA FORA DO PADRÃO TISS - Crítica ANS: [TISS 1.04 MODIFICADA] Erro de estrutura em relação ao XSD. Entende-se como erro de estrutura a informação de conteúdo no XML enviado pelas operadoras não previsto nos campos do XSD que define as terminologias da TUSS ou a falta de campos obrigatórios previstos neste mesmo XSD.
-00-5002,"Motivo Glosa: NÃO FOI POSSÍVEL VALIDAR O ARQUIVO XML - Crítica ANS: .Caso o formato de compactação do arquivo enviado seja diferente de ZIP ou o método de compressão seja  diferente de DEFLATE
-.Caso a operadora envie um arquivo ZTE que não possua nenhum arquivo a ser descompactado"
-00-5014,"Motivo Glosa: CÓDIGO HASH INVÁLIDO. MENSAGEM PODE ESTAR CORROMPIDA. - Crítica ANS: O código HASH não está de acordo com o conteúdo do arquivo, o arquivo pode ter sido alterado após ser gerado ou está corrompido."
-00-5016,Motivo Glosa: SEM NENHUMA OCORRENCIA DE MOVIMENTO NA COMPETENCIA PARA ENVIO A ANS - Crítica ANS: Este código informa a ANS que a operadora não teve nenhum movimento em determinada competencia. Este código é enviado pela operadora para a ANS.
-00-5017,Motivo Glosa: ARQUIVO PROCESSADO PELA ANS - Crítica ANS: Este código no arquivo de retorno indica que o arquivo foi processado pela ANS
-00-5023,"Motivo Glosa: COMPETÊNCIA NÃO ESTÁ LIBERADA PARA ENVIO DE DADOS - Crítica ANS: Caso a competência informada no nome do arquivo não esteja aberta para envio de dados e a operadora não possua uma exceção da competência cadastrada, ou a exceção da competência cadastrada possua uma data fim de envio menor que a data de recepção do arquivo, o arquivo será rejeitado "
-00-5044,Motivo Glosa: JÁ EXISTEM INFORMAÇÕES NA ANS PARA A COMPETÊNCIA INFORMADA - Crítica ANS: Este erro ocorre quando a operadora envia um arquivo sem movimento (5016) e já existem lançamentos para aquela competência na base de dados da ANS
-00-5045,Motivo Glosa: COMPETÊNCIA ANTERIOR NÃO ENVIADA - Crítica ANS: A competência anterior a que está sendo enviada não contem nenhum registro ativo na base de dados da ANS. Esta verificação só é realizada a partir da competência 02/2016
-00-5046,"Motivo Glosa: COMPETÊNCIA INVÁLIDA - Crítica ANS: .Arquivos que forem descompactados devem possuir no seu nome a mesma competência informada no nome do seu arquivo ZTE de origem
-.A competência informada no nome do arquivo deve ser maior ou igual ao ano e mês da data de registro da operadora.
-.A competencia informada no nome do arquivo não existe no sistema de recepção da ANS.
-.A competência expressa no nome do arquivo deve ser igual a competencia registrada internamente no cabeçalho deste mesmo arquivo"
-01-,Motivo Glosa:  - Crítica ANS: 
-02-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-03-5024,"Motivo Glosa: OPERADORA INATIVA NA COMPETÊNCIA DOS DADOS - Crítica ANS: Caso a operadora já esteja descredenciada na base de dados de operadoras da ANS, a competência dos dados enviados deve ser menor ou igual ao mês/ano da data de descredenciamento"
-04-5025,"Motivo Glosa: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: Deve ser uma data positiva, menor ou igual à data atual e preenchida no formato AAAA–MM–DD"
-05-5026,"Motivo Glosa: HORA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: Deve ser preenchida no formato HH:MM:SS. Se a data de registro da transação for igual à data atual, a hora de registro da transação deve ser menor ou igual à hora atual"
-06-5027,"Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: .Deve ser um número de registro existente na base de dados de operadoras da ANS
-.O número de registro da operadora informado no nome do arquivo enviado, deverá ser equivalente à operadora que enviou o arquivo via PTA
-.O número de registro da operadora que constar no cabeçalho do arquivo deve ser equivalente ao número de registro informado no nome do arquivo enviado e equivalente à operadora que enviou o arquivo via PTA"
-07-,Motivo Glosa:  - Crítica ANS: 
-08-,Motivo Glosa:  - Crítica ANS: 
-09-,Motivo Glosa:  - Crítica ANS: 
-010-5028,"Motivo Glosa: VERSÃO DO PADRÃO INVÁLIDA - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchida quando a origem da guia for igual a 1 (Rede Contratada, referenciada ou credenciada), 2 (Rede Própria – Cooperados) ou 3 (Rede Própria – Demais prestadores).
-Caso a guia de atendimento possua mais de um lançamento ativo, a operadora tentar incluir um novo lançamento ou tentar alterar um de seus lançamentos e a versão TISS do Prestador informado no lançamento for diferente do que consta no primeiro lançamento ativo da guia de atendimento, o lançamento será rejeitado."
-011-,Motivo Glosa:  - Crítica ANS: 
-012-1202,Motivo Glosa: NÚMERO DO CNES INVÁLIDO - Crítica ANS: Deve ser um código de CNES existente no Ministério da Saúde ou igual a '999999'
-012-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-012-5063,Motivo Glosa: PAR CNPJ x CNES NAO ENCONTRADO NA BASE DO CNES - Crítica ANS: [TISS 1.04 NOVA] O par CNPJ do estabelecimento X CNES do prestador ou CNPJ da mantenedora X CNES do prestador deve existir na base de dados do CNES. 
-012-5064,"Motivo Glosa: TIPO DE ESTABELECIMENTO NO CNES NÃO É APTO PARA INTERNAÇÃO - Crítica ANS: [TISS 1.04 NOVA] Quando o tipo de guia for igual a 3 – Internação, o CNES for diferente de ‘9999999’ e o tipo de prestador for pessoa jurídica, o tipo do estabelecimento do prestador, conforme registro na base do CNES, deve ser apto a realizar internações (HOSPITAL GERAL; HOSPITAL ESPECIALIZADO; UNIDADE MISTA; PRONTO SOCORRO GERAL; PRONTO SOCORRO ESPECIALIZADO; CLINICA/CENTRO DE ESPECIALIDADE; CENTRO DE PARTO NORMAL - ISOLADO; HOSPITAL/DIA - ISOLADO; SERVICO DE ATENCAO DOMICILIAR ISOLADO(HOME CARE))."
-013-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Verifica se o identificador do executante é válido (1–CNPJ ou 2–CPF).
-Em guias de resumo de internação deve ser obrigatoriamente igual a 1-CNPJ."
-014-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: O CPF/CNPJ deve ser existente na base da Receita Federal
-014-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-014-5065,"Motivo Glosa: TIPO DE ATIVIDADE ECONOMICA DO CNPJ NÃO É APTO PARA INTERNAÇÃO - Crítica ANS: [TISS 1.04 NOVA] Quando o tipo de guia for igual a 3 – Internação e o tipo de prestador for pessoa jurídica, o tipo de atividade econômica (CNAE) do prestador, conforme registro na base de pessoas jurídicas da Receita Federal, deve ser apto a realizar internações."
-015-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-015-5030,Motivo Glosa: CÓDIGO DO MUNÍCIPIO INVÁLIDO - Crítica ANS: Deve ser um código de município válido na base de dados de municípios do IBGE
-016-1002,Motivo Glosa: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO - Crítica ANS: Quando informado seu conteúdo deve ser válido pelo cálculo do digito verificador
-016-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-016-5086,"Motivo Glosa: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO) - Crítica ANS: [TISS 1.04 NOVA] Quando o número do CNS for encontrado na base de cadeia de CNS do SIB; e existir na base de cadeia de CNS do SIB apenas uma combinação das informações do beneficiário (CPF, sexo e data de nascimento) as informações de CPF (quando informado), sexo e data de nascimento devem ser iguais às informadas no SIB."
-017-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-017-5077,Motivo Glosa: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF - Crítica ANS: [TISS 1.04 NOVA] O sexo relacionado ao CPF informado deve ser igual ao registrado na base de dados da Receita Federal.
-018-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Quando informada, deve ser uma data positiva, menor ou igual à data de realização do procedimento e preenchida no formato AAAA–MM–DD."
-018-5078,Motivo Glosa: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF - Crítica ANS: [TISS 1.04 NOVA] A data de nascimento relacionada ao CPF informado deve ser igual ao registrado na base de dados da Receita Federal.
-019-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-019-5030,Motivo Glosa: CÓDIGO DO MUNÍCIPIO INVÁLIDO - Crítica ANS: Deve ser um código de município válido na base de dados de municípios do IBGE
-020-1024,Motivo Glosa: PLANO NÃO EXISTENTE - Crítica ANS: Deve ser um número de registro de plano válido na base de dados de planos da operadora que realizou o envio do arquivo
-020-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-021-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-022-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-023-1307,"Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Caso a operadora solicite a alteração ou exclusão de um lançamento de uma guia que não conste na base de dados ou não esteja ativo.
-Quando a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores), o campo deve ser preenchido com o número da guia no prestador. Quando a origem da guia for igual a 4 (reembolso) ou 5 (Prestador eventual), o campo deve ser preenchido com uma sequência de 20 zeros nas operação de “Inclusão"" e ""Alteração”."
-023-1308,Motivo Glosa: GUIA JÁ APRESENTADA - Crítica ANS: Inclusão de guia (chave completa) que já existe na base de dados da ANS
-023-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-023-5073,"Motivo Glosa: O PRIMEIRO LANCAMENTO DA GUIA SÓ PODE SER EXCLUIDO SE ELE FOR O ÚNICO - Crítica ANS: [TISS 1.04 NOVA] Caso seja enviado uma exclusão do primeiro lançamento de uma guia e já existam outros lançamentos desta guia no banco de dados, este lançamento será rejeitado."
-024-1307,"Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Quando a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores) o campo deve ser preenchido com o código atribuído pela operadora. 
-Caso a operadora não possua um código ou a origem da guia for igual a 4(reembolso) ou 5 (Prestador eventual), ela deverá informar uma sequência de 20 zeros nas operações de “Inclusão"" ou ""Alteração”."
-024-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-025-1307,"Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Quando a origem da guia for igual a 4(reembolso) o campo deve ser preenchido com o número de identificação de reembolso atribuído pela operadora e deve ser diferente de uma sequência de 20 zeros.
-Quando a origem da guia – origemEventoAtencao for igual a 5 (Prestador Eventual) o campo identificação de reembolso deve ser preenchido com o número que identifica o pagamento a prestador não pertencente à rede da operadora e dever ser diferente de uma sequência de 20 números 0."
-025-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-026-1307,"Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando o tipo de guia for igual 3(internação) ou 5(honorários) e a origem da guia for igual a  1(rede contratada), 2(rede própria-cooperados) ou 3(rede própria-demais prestadores) nas transações de inclusão ou alteração.
-Este número não pode ser informado nas guias odontológicas (GTO) nem nas guias de consultas.
-O número da guia de solicitação, quando informado, não deve ser preenchido com zeros."
-027-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser uma data positiva e preenchida no formato AAAA–MM–DD
-028-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Quando informada, deve ser uma data positiva e preenchida no formato AAAA–MM–DD"
-029-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser uma data positiva, menor que a data atual, menor ou igual à data de registro da transação e preenchida no formato AAAA–MM–DD"
-030-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: [TISS 1.04 MODIFICADA] Quando informada, deve ser uma data positiva, menor que a data atual, menor ou igual à data de registro da transação e preenchida no formato AAAA–MM–DD."
-031-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser uma data positiva, menor que a data atual, menor ou igual à data de registro da transação, maior ou igual à data de início do faturamento, maior ou igual a data de realização e preenchida no formato AAAA–MM–DD.
-Esta data é de preenchimento obrigatório em guias de resumo de internação."
-032-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser uma data positiva, menor que a data atual, menor ou igual à data de registro da transação e preenchida no formato AAAA–MM–DD"
-033-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser uma data positiva, menor que a data atual e preenchida no formato AAAA–MM–DD"
-034-1603,"Motivo Glosa: TIPO DE CONSULTA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando tipo de guia for igual a 1 (consulta) e a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores);   
-- OU -
-tipo de guia for igual a 2 (SP/SADT), o tipo de atendimento for igual a 4 e a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores)."
-035-1213,"Motivo Glosa: CBO (ESPECIALIDADE) INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando tipo de guia for igual a 1 (consulta); ou 2 (SP/SPDAT) e o tipo de atendimento for igual a 4 (Consulta); ou 4 (Tratamento Odontológico) e o tipo de atendimento for igual a 4 (Consulta); e a origem da guia for uma das seguintes opções: 1 (Rede Contratada, referenciada ou credenciada); ou 2 (Rede Própria - Cooperados); ou 3 (Rede Própria - Demais prestadores).
-Não deve ser preenchido quando o tipo de guia for igual a 3 (Internação); ou 5 (Honorários).
-O CBO do executante não pode ser igual a 999999."
-035-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-036-5032,"Motivo Glosa: INDICADOR DE RECÉM-NATO INVÁLIDO - Crítica ANS: Deve ser preenchido quando o tipo de guia for igual a 1(consulta), 2(SP/SADT) ou 3(internação)"
-037-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser um código válido na TUSS.
-Deve ser preenchido quando o tipo de guia for igual a 1-Consulta, 2-SP/SADT ou 3-Resumo de Internação e a origem da guia for igual a 1 - Rede Contratada, referenciada ou credenciada, 2 - Rede Própria - Cooperados ou 3 - Rede Própria - Demais prestadores.
-Não deve ser preenchido quando os tipos de guia forem iguais a 4 - Tratamento Odontológico ou 5 - Honorários"
-038-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-038-5031,"Motivo Glosa: CARÁTER DE ATENDIMENTO INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando o tipo de guia for igual 2 (SP/SADT) ou 3 (internação) e a origem da guia for uma das seguintes opções: 1 (Rede Contratada, referenciada ou credenciada); ou 2 (Rede Própria - Cooperados); ou 3 (Rede Própria - Demais prestadores).
-Não deve ser preenchido quando o tipo de guia for igual a 1 (Consulta), 4 (Tratamento Odontológico) ou 5 (Honorários)."
-039-1506,"Motivo Glosa: TIPO DE INTERNAÇÃO INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando o tipo de guia for igual a 3 (internação) e a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores).
-Não deve ser preenchido quando o tipo de guia for igual a 1 (Consulta), 2 (SP/SADT), 4 (Tratamento Odontológico) ou 5 (Honorários)."
-039-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-040-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser um código válido na TUSS.
-Deve ser preenchido quando o tipo de guia for igual 3-Resumo de Internação e a origem da guia for igual a 1 - Rede Contratada, referenciada ou credenciada, 2 - Rede Própria - Cooperados ou 3 - Rede Própria - Demais prestadores."
-041-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: Quando informado deve ser um código de CID válido na base de dados de CID e estar vigente
-041-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44
-No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID de primeiro diagnóstico seja informado, este deve ser igual ao que já estava na base de dados para esta guia
-Este campo só pode ser informado em guias de resumo de internação"
-041-5067,"Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: [TISS 1.04 NOVA] Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44.
-Este campo só pode ser informado em guias de resumo de internação."
-041-5075,"Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-042-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: Quando informado deve ser um código de CID válido na base de dados de CID e estar vigente
-042-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44
-No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID de segundo diagnóstico seja informado, este deve ser igual ao que já estava na base de dados para esta guia
-Este campo só pode ser informado em guias de resumo de internação"
-042-5067,"Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: [TISS 1.04 NOVA] Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44.
-Este campo só pode ser informado em guias de resumo de internação."
-042-5075,"Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-043-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: Quando informado deve ser um código de CID válido na base de dados de CID e estar vigente
-043-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44
-No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID de terceiro diagnóstico seja informado, este deve ser igual ao que já estava na base de dados para esta guia
-Este campo só pode ser informado em guias de resumo de internação"
-043-5067,"Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: [TISS 1.04 NOVA] Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44.
-Este campo só pode ser informado em guias de resumo de internação."
-043-5075,"Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-044-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: Quando informado deve ser um código de CID válido na base de dados de CID e estar vigente
-044-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44
-No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID de quarto  diagnóstico seja informado, este deve ser igual ao que já estava na base de dados para esta guia
-Este campo só pode ser informado em guias de resumo de internação"
-044-5067,"Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: [TISS 1.04 NOVA] Não deve haver repetição do conteúdo do CID nos campos 41,42,43 e 44.
-Este campo só pode ser informado em guias de resumo de internação."
-044-5075,"Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) caso o CID seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-045-1602,"Motivo Glosa: TIPO DE ATENDIMENTO INVÁLIDO OU NÃO INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchido quando o tipo de guia for igual 2 (SP/SADT) e a origem da guia for igual a 1 (rede contratada), 2 (rede própria-cooperados) ou 3 (rede própria-demais prestadores).
-Na inclusão do primeiro lançamento não poderá haver as seguintes opções para o tipo de atendimento: 05,06,07,11,14,15,16,17,18,19,20,21 ou 22. Quando a versão enviada pelo prestador for menor que 23, não poderá ser informado código de tipo de atendimento maior que 22.
-Caso a operadora tente incluir um lançamento ou alterar o único lançamento ativo de uma guia de atendimento presente na base de dados e o tipo de atendimento informado no lançamento for diferente do que consta no primeiro lançamento ativo da guia de atendimento, o lançamento será rejeitado."
-045-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-046-1713,"Motivo Glosa: FATURAMENTO INVÁLIDO - Crítica ANS: Deve ser preenchido quando o tipo de guia for igual 3(internação) ou 4(GTO) e a origem da guia for igual a 1(rede contratada), 2(rede própria-cooperados) ou 3(rede própria-demais prestadores) "
-046-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-047-1304,Motivo Glosa: COBRANÇA EM GUIA INDEVIDA - Crítica ANS: Só pode ser preenchido quando o tipo de guia for igual a 3(internação)
-048-1304,Motivo Glosa: COBRANÇA EM GUIA INDEVIDA - Crítica ANS: Só pode ser preenchido quando o tipo de guia for igual a 3(internação)
-049-5033,"Motivo Glosa: MOTIVO DE ENCERRAMENTO INVÁLIDO - Crítica ANS: Deve ser preenchido quando o tipo de guia for igual a 3(internação) e a origem da guia for igual a 1(rede contratada), 2(rede própria-cooperados) ou 3(rede própria-demais prestadores).
-Deve ser um código válido na base de dados de termos da tabela TUSS, vinculado a tabela TUSS 39"
-050-1705,"Motivo Glosa: VALOR APRESENTADO A MAIOR - Crítica ANS: .Caso seja enviado um lançamento de inclusão para uma guia que já exista no banco de dados da ANS, o valor total informado da guia enviado no arquivo não pode ser maior que o valor total informado existente no banco de dados.
-.Caso seja enviado um lançamento de alteração  e já houver mais de um lançamento da guia no banco de dados,  o valor total informado no arquivo enviado não pode ser maior que o valor que está no banco de dados da ANS."
-050-1706,"Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: .Caso seja enviado um lançamento de inclusão para uma guia que já exista no banco de dados da ANS, o valor total informado da lançamento enviado no arquivo não pode ser menor que o valor total informado existente no banco de dados.
-.Caso seja enviado um lançamento de alteração  e já houver mais de um lançamento da guia no banco de dados,  o valor total informado no lançamento enviado não pode ser menor que o valor que está no banco de dados da ANS.
-.Caso seja enviado um lançamento de inclusão e já exista um lançamento ativo desta mesma guia na base de dados da ANS, o valor total informado no lançamento deve ser igual ou maior que o valor informado nos itens deste lançamento."
-050-5042,"Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Inclusão e não exista lançamentos na base de dados para a mesma guia ou o 'tipoRegistro' for igual a Alteração e exista apenas um lançamento do tipo Inclusão na base de dados para a mesma guia, o 'valorTotalInformado' deve ser igual à soma do 'valorInformado' dos procedimentos/itens assistenciais informados no arquivo e já existentes na base de dados em outros lançamentos ativos da mesma guia."
-050-5083,Motivo Glosa: SOMA DOS VALORES DOS MODELOS DE REMUNERAÇÃO DIFERENTE DO VALOR INFORMADO DA GUIA - Crítica ANS: [TISS 1.04 NOVA] A soma de todos os valores das formas de remuneração deve ser igual ao valor total informado da guia.
-051-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor processado da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-052-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: .O valor do total pago de procedimento enviado no lançamento somado ao valor total pago de procedimentos já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de procedimentos deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-052-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de procedimentos da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-053-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: .O valor do total pago de diárias enviado no lançamento somado ao valor total pago de diárias já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de diárias deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-053-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de diárias da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-054-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago de taxas enviado no lançamento somado ao valor total pago de taxas já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de taxas deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-054-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de taxas da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-055-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago de materiais enviado no lançamento somado ao valor total pago de materiais já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de materiais deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-055-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de materiais da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-056-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago de OPME enviado no lançamento somado ao valor total pago de OPME já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de OPME deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-056-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de OPME da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-057-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago de medicamentos enviado no lançamento somado ao valor total pago de medicamentos já existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago de medicamentos deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-057-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de medicamentos da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-058-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago de glosa da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-059-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago enviado no lançamento somado ao valor total pago na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-059-5034,"Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: .O valor total pago deve ser igual a soma do 'valorTotalPagoProcedimentos', 'valorTotalDiarias', 'valorTotalTaxas', 'valorTotalMateriais', 'valorTotalOPME', 'valorTotalMedicamentos', informados no mesmo lançamento
-.O valor total pago da guia deve ser maior ou igual a zero nas operações de Inclusão ou Alteração"
-059-5042,"Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Inclusão ou Alteração, o 'valorPagoGuia' informado no arquivo deve ser igual à soma do 'valorPagoProc' dos procedimentos/itens assistenciais informados no arquivo e já existentes na base de dados de procedimentos para o mesmo lançamento da guia. "
-060-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago diretamente aos fornecedores enviado no lançamento somado ao valor total pago diretamente aos fornecedores existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago aos fornecedores deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-060-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago diretamente ao fornecedor deve ser maior ou igual a zero
-060-5042,"Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Inclusão ou Alteração, o 'valorPagoFornecedores' informado no arquivo deve ser igual à soma do 'valorPagoFornecedor' dos procedimentos/itens assistenciais informados no arquivo e já existentes na base de dados de procedimentos para o mesmo lançamento da guia. "
-061-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor do total pago em tabela própria enviado no lançamento somado ao valor total pago em tabela própria existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor total pago em tabela própria deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-061-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago em tabela própria deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-062-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] A informação da Declaração de Nascido Vivo só deve constar em guias de Resumo de Internação.
-062-5066,Motivo Glosa: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE. - Crítica ANS: [TISS 1.04 NOVA] Não pode haver repetição do mesmo número nas ocorrências deste campo.
-062-5068,"Motivo Glosa: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) ou alteração, caso o numero da declaração de nascido vivo seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-063-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] A Declaração de Óbito só deve constar em guias de resumo de internação.
-063-5034,"Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Deve ser preenchida quando o tipo de guia for igual a 3 (Resumo de Internação, e a origem da guia for uma das seguintes opções: 1 (Rede Contratada, referenciada ou credenciada), 2 (Rede Própria - Cooperados) ou 3 (Rede Própria - Demais prestadores), e quando o ‘motivoSaida’ for igual a 41 (Óbito com declaração de óbito fornecida pelo médico assistente), 63 (Alta da mãe/puérpera e óbito do recém-nascido), 65 (Óbito da gestante e do concepto), 66 (Óbito da mãe/puérpera e alta do recém-nascido)  ou 67 (Óbito da mãe/puérpera e permanência do recém-nascido)."
-063-5066,Motivo Glosa: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE. - Crítica ANS: [TISS 1.04 NOVA] Não pode haver repetição do mesmo número nas ocorrências deste campo.
-063-5068,"Motivo Glosa: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) ou alteração caso o número da declaração de óbito seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-064-1801,"Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] A partir do segundo lançamento de uma guia, o par informado nos campos 64 e 65 (Código do Grupo) ou nos campos 64 e 66 (Código do Procedimento) já devem existir no primeiro lançamento."
-064-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: A) Deve ser um código válido na TUSS
-B) Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado pois o sistema irá remover estes caracteres, fazendo com que o elemento fique vazio"
-064-5035,Motivo Glosa: CÓDIGO DA TABELA DE REFERÊNCIA NÃO INFORMADO - Crítica ANS: Deve ser um código válido na base de dados de termos da tabela TUSS 87
-064-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: Não deve haver repetição do campo tabela de referência e código do grupo ou item assistencial. Quando for guia odontológica, a regra verificará também código do dente, face e região da boca, sendo considerado duplicidade apenas se estes campos forem iguais."
-065-1801,"Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: A partir do segundo lançamento de uma guia, o par informado nos campos 64 e 65 já devem existir no primeiro lançamento"
-065-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: A) Deve ser um código válido na TUSS
-B) Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado pois o sistema irá remover estes caracteres, fazendo com que o elemento fique vazio"
-065-5036,Motivo Glosa: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO - Crítica ANS: Deve ser um código válido na base de termos da tabela TUSS 63
-065-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: Não deve haver repetição do campo tabela de referência e código do grupo ou item assistencial. Quando for guia odontológica, a regra verificará também código do dente, face e região da boca, sendo considerado duplicidade apenas se estes campos forem iguais."
-066-1801,"Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: A) Quando não for código próprio da operadora ou pacote (indicados pelos códigos 00, 90 ou 98 no campo 64), deve ser um código existente na  TUSS, conforme código da tabela de referência informada.
-B) A partir do segundo lançamento de uma guia, o par informado nos campos 64 e 66 já devem existir no primeiro lançamento."
-066-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO. - Crítica ANS: A forma de envio do procedimento informado deve ser consolidado (informação na tabela TUSS 64)
-067-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: .Deve ser um código válido na TUSS
-.No lançamento de inclusão ou alteração o código do dente deve ser o mesmo para o item/procedimento já informado em lançamento anterior da mesma guia"
-067-5069,"Motivo Glosa: CÓDIGO DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] Deve ser um código válido na TUSS.
-No lançamento de inclusão ou alteração o código do dente deve ser o mesmo para o item/procedimento já informado em lançamento anterior da mesma guia."
-068-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: .Deve ser um código válido na TUSS
-.No lançamento de inclusão ou alteração a identificação da região da boca deve ser a mesma para o item/procedimento já informado em lançamento anterior da mesma guia"
-068-5070,"Motivo Glosa: CÓDIGO DA REGIÃO DA BOCA DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] Deve ser um código válido na TUSS.
-No lançamento de inclusão ou alteração a identificação da região da boca deve ser a mesma para o item/procedimento já informado em lançamento anterior da mesma guia."
-069-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: No lançamento de inclusão ou alteração a identificação da face do dente deve ser a mesma para o item/procedimento já informado em lançamento anterior da mesma guia
-069-5039,"Motivo Glosa: CÓDIGO DA FACE DO DENTE INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Não pode ser informado quando o tipo de guia for diferente de 4 (GTO). 
-Quando preenchido, o campo poderá ser composto por até 5 códigos de termos concatenados. Dentre esses 5 códigos, não poderá haver repetição de código e os códigos devem ser válidos na tabela TUSS 32."
-069-5071,Motivo Glosa: CÓDIGO DA FACE DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão ou alteração a identificação da face do dente deve ser a mesma para o item/procedimento já informado em lançamento anterior da mesma guia.
-070-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: A quantidade informada de procedimentos deve ser maior que zero
-071-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: O valor informado no lançamento de inclusão ou alteração deve ser igual ao já existente em outro lançamento da mesma guia para o mesmo procedimento/item
-071-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor informado do item deve ser maior ou igual a zero nas operações de Inclusão ou Alteração
-071-5072,Motivo Glosa: VALOR INFORMADO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: [TISS 1.04 NOVA] O valor informado no lançamento de inclusão ou alteração deve ser igual ao já existente em outro lançamento da mesma guia para o mesmo procedimento/item.
-072-1806,"Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: Se o valor pago do procedimento for maior que zero, a quantidade de procedimentos paga deve ser maior que zero"
-072-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: A quantidade paga de itens deve ser maior ou igual a zero
-073-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor pago do procedimento enviado no lançamento somado ao valor pago do procedimento existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor pago do procedimento deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-073-5034,"Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: .O valor pago do item deve ser maior ou igual a zero
-.Se a quantidade paga do item for maior que zero, o valor pago do item deve ser maior que zero"
-074-1740,"Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: O valor pago ao fornecedor enviado no lançamento somado ao valor pago ao fornecedor existente na base de dados da ANS não deve ser negativo. Caso isso ocorra, é sinal que a operadora está enviando um valor pago negativo (estorno) maior que o valor que já foi pago pela guia.
-.Quando houver um lançamento de exclusão, o valor pago diretamente ao fornecedor deve permanecer positivo nos lançamentos restantes na base para a mesma guia."
-074-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor pago do item diretamente ao fornecedor deve ser maior ou igual a zero
-075-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: O CNPJ deve ser existente na base da Receita Federal
-076-,Motivo Glosa:  - Crítica ANS: 
-077-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: A) Deve ser um código válido na TUSS
-B) Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado pois o sistema irá remover estes caracteres, fazendo com que o elemento fique vazio"
-077-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: Não deve haver repetição dos campos tabela de referencia e código do item dentro do pacote
-078-1801,"Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Quando não for código próprio da operadora ou pacote (indicados pelos códigos 00, 90 ou 98 no campo 77), deve ser um código existente na  TUSS, conforme código da tabela de referência informada.
-A partir do segundo lançamento de uma guia, o procedimento informado no campo 78 já deve existir no primeiro lançamento."
-078-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO. - Crítica ANS: A forma de envio do procedimento informado deve ser consolidado (informação na tabela TUSS 64)
-078-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: Não deve haver repetição dos campos tabela de referencia e código do item dentro do pacote
-079-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: A quantidade informada de procedimentos no pacote deve ser maior que zero
-080-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser uma data positiva, menor que a data atual e preenchida no formato AAAA–MM–DD"
-080-5025,Motivo Glosa: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: O mês/ano da data de processamento deve ser igual ao mês/ano da competência do arquivo nos casos de transação de inclusão
-081-5027,"Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: .O registro deve corresponder a uma operadora existente na base de dados de operadoras e deve ser diferente da operadora que realizou o envio do arquivo.
-.Caso já exista um lançamento da mesma guia na base de dados, o registro da operadora intermediária deve ser igual ao registro da operadora informado no lançamento anterior."
-081-5062,"Motivo Glosa: REGISTRO ANS DA OPERADORA INTERMEDIÁRIA NÃO INFORMADO - Crítica ANS: O campo ""Tipo de atendimento por operadora intermediária"" foi informado e o campo ""Registro ANS da operadora intermediária"" não está preenchido."
-082-5050,"Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: Se já existir um lançamento no banco de dados da ANS para a mesma guia, o identificador de contratação por valor pré-estabelecido deve ser o mesmo enviado anteriormente"
-082-5052,"Motivo Glosa: IDENTIFICADOR INEXISTENTE - Crítica ANS: Quando o tipo de guia for igual a internação (3), a identificacao do valor preestabelecido deve existir na base de dados dos valores preestabelecidos para o mesmo prestador ou para a operadora intermediária informado no lançamento e estar ativo.
-Quando o tipo de guia for diferente de internação, a identificacao do valor preestabelecido deve existir na base de dados dos valores preestabelecidos para o mesmo prestador ou para a operadora intermediária informado no lançamento, na competência equivalente ao mês e ano da data de realizacao informada no lançamento e estar ativo."
-083-1307,"Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Quando o tipo da guia for igual a 2 (SP/SADT) ou 4 (GTO) e a origem da guia for igual a 1(rede contratada), 2(rede própria-cooperados) ou 3(rede própria-demais prestadores), o número da guia principal de SP/SADT ou da guia principal de tratamento odontológico deve ser preenchido com o número da guia atribuído pelo prestador. Quando a origem da guia for igual a 4(reembolso) e o número da guia principal de SP/SADT for informado no arquivo, seu valor deve ser preenchido com uma sequência de 20 zeros. 
-O número da guia principal de SADT só deve ser informado em uma guia de SP/SADT ou guia de tratamento odontológico.
-Não deve ser preenchido quando o tipo de guia for igual a 1 – Consulta, 3 – Internação ou 5 – Honorários."
-084-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total de coparticipação deve ser maior ou igual a zero
-084-5050,"Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: O valor total de coparticipação deve ser igual ao somatório do valor de coparticipação dos itens (campo 085) nas guias de consulta, SP/SADT de beneficiário não internado e guia de tratamento odontológico. No caso da guia de resumo de internação, honorário profissional e da guia de SP/SADT de beneficiário internado, deve-se preencher apenas o valor total de coparticipação sem indicar valor de coparticipação nos itens.
-No caso de um lançamento de alteração, o valor total de coparticipação deve ser igual ao valor dos itens que estão no arquivo para alteração mais o valor dos itens de coparticipação que por ventura já existam no banco de dados para o mesmo lançamento. A crítica na alteração obedece a mesma lógica da transação de inclusão quanto ao tipo de guia que está sendo enviado."
-085-5034,"Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: A) O valor de coparticipação no item deve ser maior ou igual a zero
-B) Caso o valor de coparticipação do item seja nulo (tag vazia) o lançamento será rejeitado."
-085-5050,"Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: o valor de coparticipação do item deve ser igual a zero nas guias de resumo de internação, honorário profissional e SP/SADT de beneficiário internado. Nas outras situações ele deve ser maior ou igual a zero."
-086-,Motivo Glosa:  - Crítica ANS: 
-088-1202,Motivo Glosa: NÚMERO DO CNES INVÁLIDO - Crítica ANS: Deve ser um código de CNES existente no Ministério da Saúde ou igual a '999999'
-089-,Motivo Glosa:  - Crítica ANS: 
-090-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: O CNPJ deve ser existente na base da Receita Federal
-091-5030,Motivo Glosa: CÓDIGO DO MUNÍCIPIO INVÁLIDO - Crítica ANS: Deve ser um código de município válido na base de dados de municípios do IBGE
-092-5027,Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: O registro deve corresponder a uma operadora existente na base de dados de operadoras e deve ser diferente da operadora que realizou o envio do arquivo
-093-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-093-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Não deve haver repetição do identificador do valor pré-estabelecido para outra contratação informada à ANS.
-Quando o campo Operadora Intermediária for informado a chave será:
-  -Número do registro da operadora na ANS que realizou o envio do arquivo;
-  -Número do registro da operadora na ANS intermediária;
-  -Competência da Cobertura Contratada;
-  -Número de identificação do valor preestabelecido.
-Quando o campo Operadora Intermediária não for informado a chave será:
-  -Número do registro da operadora na ANS que realizou o envio do arquivo;
-  -Número do CNES do prestador recebedor;
-  -Indicador de identificador do prestador;
-  -Número do CPF/CNPJ do prestador;
-  -Código do município do prestador;
-  -Competência da Cobertura Contratada;
-  -Número de identificação do valor preestabelecido."
-093-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: Acontece quando a operadora envia um lançamento de alteração ou exclusão de contratação por valor pré-estabelecido e o registro não é encontrado no banco de dados da ANS
-093-5059,Motivo Glosa: EXCLUSÃO INVÁLIDA - EXISTEM LANÇAMENTOS VINCULADOS A ESTA FORMA DE CONTRATAÇÃO - Crítica ANS: Não é possível excluir um registro de identificação de valor pré-estabelecido enquanto houver lançamentos vinculados a ele
-094-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor preestabelecido deve ser maior que zero
-095-,Motivo Glosa:  - Crítica ANS: 
-096-1002,Motivo Glosa: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO - Crítica ANS: Quando informado seu conteúdo deve ser válido pelo cálculo do digito verificador
-096-5086,"Motivo Glosa: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO) - Crítica ANS: [TISS 1.04 NOVA] Quando o número do CNS for encontrado na base de cadeia de CNS do SIB; e existir na base de cadeia de CNS do SIB apenas uma combinação das informações do beneficiário (CPF, sexo e data de nascimento) as informações de CPF (quando informado), sexo e data de nascimento devem ser iguais às informadas no SIB."
-097-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-097-5077,Motivo Glosa: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF - Crítica ANS: [TISS 1.04 NOVA] O sexo relacionado ao CPF informado deve ser igual ao registrado na base de dados da Receita Federal.
-098-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: A data deve ser preenchida no formato AAAA–MM–DD, ser menor que a data atual e menor ou igual a data de registro da transacao (campo 004)"
-098-5078,Motivo Glosa: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF - Crítica ANS: [TISS 1.04 NOVA] A data de nascimento relacionada ao CPF informado deve ser igual ao registrado na base de dados da Receita Federal.
-099-5030,Motivo Glosa: CÓDIGO DO MUNÍCIPIO INVÁLIDO - Crítica ANS: Deve ser um código de município válido na base de dados de municípios do IBGE
-0100-1024,Motivo Glosa: PLANO NÃO EXISTENTE - Crítica ANS: Deve ser um número de registro de plano válido na base de dados de planos da operadora que realizou o envio do arquivo
-0101-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 MODIFICADA] Se neste campo for informado apenas espaços em branco, caractere de quebra de linha ou de tabulação, o lançamento será rejeitado."
-0101-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Não deve haver repetição de identificador de fornecimento direto de materiais e medicamentos.
-Chave para identificação de um fornecimento direto:
--Número do registro da operadora na ANS que realizou o enviou do arquivo;
--Número de identificação do fornecimento direto;
--Data do fornecimento"
-0101-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: Acontece quando a operadora envia um lançamento de alteração ou exclusão de fornecimento de materiais e medicamentos e o registro não é encontrado no banco de dados da ANS
-0102-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: A data deve ser preenchida no formato AAAA–MM–DD, ser menor que a data atual e seu ano e mês devem ser equivalentes ao ano e mês contidos no campo competencia dos dados (campo 003)"
-0102-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ LIBERADA PARA ENVIO DE DADOS - Crítica ANS: O ano e mês da data de fornecimento informada no arquivo devem corresponder a uma competência vigente na base de dados de competências na data em que o arquivo foi recepcionado na base de dados do PTA.
-0103-1706,Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: O valor total dos itens fornecidos deve ser maior ou igual a soma do valor fornecido dos procedimentos/itens assistenciais informados no arquivo e já existentes na base de dados.
-0103-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total dos itens fornecidos deve ser maior ou igual a zero
-0103-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS:  O valor total dos itens fornecidos deve ser igual a soma do valor fornecido dos procedimentos/itens assistenciais (campo 110)
-0104-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total dos itens fornecidos com código em tabela própria  deve ser maior ou igual a zero
-0105-1706,"Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: No caso de um lançamento de alteração de fornecimento direto, o valor total de coparticipação deve ser maior ou igual a soma do valor de coparticipação dos itens informados no lançamento e deve ser igual ao somatório do valor de coparticipação dos itens alterados mais o valor dos outros itens que por ventura já existam para o mesmo lançamento"
-0105-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total da coparticipação deve ser maior ou igual a zero
-0105-5050,"Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: No caso de um lançamento de inclusão de fornecimento direto, o valor total de coparticipação deve ser igual a soma do valor de coparticipação dos itens "
-0106-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-0106-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: Não deve haver repetição da tabela de referência em conjunto com o código do grupo ou item assistencial no fornecimento direto de materiais e medicamentos
-0106-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Alteração o 'códigoTabela' já deve existir na base de dados para o mesmo lançamento em alteração. 
-0107-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: Deve ser um código válido na TUSS
-0107-5036,Motivo Glosa: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO - Crítica ANS: Deve ser um código válido na base de termos da tabela TUSS 63
-0107-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Não deve haver repetição da tabela de referência em conjunto com o código do grupo ou item assistencial no fornecimento direto de materiais e medicamentos. 
-Chave para identificação de um item de fornecimento direto:
--Número do registro da operadora na ANS que realizou o enviou do arquivo;
--Número de identificação do fornecimento direto;
--Data do fornecimento;
--Código da tabela TUSS do procedimento;
--Código do procedimento ou grupo de procedimento, de acordo com o informado no arquivo"
-0107-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Alteração o 'grupoProcedimento' já deve existir na base de dados para o mesmo lançamento em alteração. 
-0108-1801,"Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: Quando não for código próprio da operadora ou pacote (indicados pelos códigos 00, 90 ou 98 no campo 106) deve ser um código existente na  TUSS"
-0108-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO. - Crítica ANS: A forma de envio do item informado deve ser consolidado (informação na tabela TUSS 64)
-0108-5053,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: [TISS 1.04 MODIFICADA] Não deve haver repetição da tabela de referência em conjunto com o código do item assistencial no fornecimento direto de materiais e medicamentos.
-Chave para identificação de um item de fornecimento direto:
--Número do registro da operadora na ANS que realizou o enviou do arquivo;
--Número de identificação do fornecimento direto;
--Data do fornecimento;
--Código da tabela TUSS do procedimento;
--Código do procedimento ou grupo de procedimento, de acordo com o informado no arquivo"
-0108-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: [TISS 1.04 MODIFICADA] Se o 'tipoRegistro' for igual a Alteração o 'codigoProcedimento' já deve existir na base de dados para o mesmo lançamento em alteração. 
-0109-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: A quantidade de itens fornecidos deve ser maior que zero
-0110-5040,Motivo Glosa: VALOR DEVE SER MAIOR QUE ZERO - Crítica ANS: O valor deve ser maior que zero
-0111-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor da coparticipação deve ser maior ou igual a zero
-0112-,Motivo Glosa:  - Crítica ANS: 
-0113-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: Deve ser menor que a data atual e seu ano e mês devem ser equivalentes ao ano e mês contidos no campo de competência dos dados (campo 003)
-0113-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ LIBERADA PARA ENVIO DE DADOS - Crítica ANS: O ano e mês da data de processamento informada no arquivo devem corresponder a uma competência vigente na base de dados de competências na data em que o arquivo foi recepcionado na base de dados do PTA.
-0114-,Motivo Glosa:  - Crítica ANS: 
-0115-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: O CPF/CNPJ deve ser existente na base da Receita Federal
-0115-5055,"Motivo Glosa: IDENTIFICADOR JÁ INFORMADO NA COMPETÊNCIA - Crítica ANS: Acontece quando é enviado um lançamento de outras formas de remuneração que já conste na base de dados da ANS
-Chave utilizada nesta pesquisa:
--Número do registro da operadora na ANS;
--Tipo de identificação do recebedor;
--Número do CPF/CNPJ do recebedor;
--Data do processamento da outra remuneração;"
-0115-5056,"Motivo Glosa: IDENTIFICADOR NÃO INFORMADO NA COMPETÊNCIA - Crítica ANS: Acontece quando é enviado um lançamento de alteração ou exclusão de outras formas de remuneração que não conste na base de dados da ANS.
-Chave utilizada nesta pesquisa:
--Número do registro da operadora na ANS;
--Tipo de identificação do recebedor;
--Número do CPF/CNPJ do recebedor;
--Data do processamento da outra remuneração;"
-0116-5040,Motivo Glosa: VALOR DEVE SER MAIOR QUE ZERO - Crítica ANS: O valor total informado deve ser maior que zero
-0117-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total da glosa deve  ser maior ou igual a zero
-0118-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: O valor total pago deve  ser maior ou igual a zero
-0119-1323,"Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: A competência da cobertura contratada, preenchida no formato AAAAMM, deve ser menor que o mês/ano da data atual e seu ano e mês deve ser equivalente ao ano e mês contido no campo competenciado dos dados (campo 003)"
-0119-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ LIBERADA PARA ENVIO DE DADOS - Crítica ANS: A competência não deve ser diferente das competências vigentes na base de dados de competências do TISS
-0119-5045,Motivo Glosa: COMPETÊNCIA ANTERIOR NÃO ENVIADA - Crítica ANS: Acontece quando há uma lacuna (falta de informação) entre a competência enviada e a última incorporada ao banco de dados da ANS
-0120-5061,"Motivo Glosa: TIPO DE ATENDIMENTO OPERADORA INTERMEDIÁRIA NÃO INFORMADO - Crítica ANS: Caso o primeiro lançamento da guia seja de competência posterior a dezembro de 2017 e o campo 081 que identifica a operadora intermediária tenha sido informado, o tipo de atendimento por operadora intermediária deve ser informado."
-0121-1206,"Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] No lançamento de inclusão (do segundo em diante para a mesma guia) ou alteração caso o número do CPF seja informado, este deve ser igual ao que já estava na base de dados para esta guia."
-0121-5076,Motivo Glosa: CPF NÃO ENCONTRADO NA RECEITA FEDERAL - Crítica ANS: [TISS 1.04 NOVA] Deve ser de um CPF válido (ter 11 caracteres) e existir na base de dados da Receita Federal.
-0122-5079,Motivo Glosa: MODELO DE REMUNERAÇÃO EM DUPLICIDADE. - Crítica ANS: [TISS 1.04 NOVA] No lançamento de Inclusão ou Alteração não deve haver repetição do mesmo código no campo modelo de remuneração.
-0122-5080,"Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO INFORMADO - Crítica ANS: [TISS 1.04 NOVA] Deve ser preenchido quando a origem da guia for igual a 1 (Rede Contratada, referenciada ou credenciada), 2 (Rede Própria - Cooperados) ou 3 (Rede Própria - Demais prestadores)."
-0122-5081,Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REEMBOLSO/PRESTADOR EVENTUAL - Crítica ANS: [TISS 1.04 NOVA] Não deve ser preenchido se a origem da guia foi 4 (Reembolso) ou 5 (Prestador eventual).
-0122-5082,Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REDE PROPRIA COM MESMO CNPJ - Crítica ANS: [TISS 1.04 NOVA] Não deve ser preenchido nos atendimentos em rede própria de mesmo CNPJ.
-0123-5074,"Motivo Glosa: REGIME DE ATENDIMENTO INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] Deve ser preenchido no lançamento de inclusão ou alteração, se o tipo de guia for igual a 1 (Consulta) ou 2 (SP/SADT); e a origem da guia for uma das seguintes opções: 1 (Rede Contratada, referenciada ou credenciada), 2 (Rede Própria - Cooperados) ou 3 (Rede Própria - Demais prestadores); e a versão enviada pelo prestador à operadora é igual ou maior a 023 (versão 4.00.00). 
-Não deve ser preenchido se a versão enviada pelo prestador à operadora for menor que 023 ou tipo de guia for igual a 3 (Internação), 4 (Tratamento Odontológico) ou 5 (Honorários).
-No lançamento de inclusão (do segundo em diante para a mesma guia) ou alteração, deve ser igual ao que já estava na base de dados para esta guia."
-0124-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] Não deve ser preenchido quando a versão enviada pelo prestador à operadora for menor que 023 ou tipo de guia for igual a 3 (Internação), 4 (Tratamento Odontológico) ou 5 (Honorários).
-Caso exista um ou mais lançamentos ativos na base de dados, a operadora tentar incluir um novo lançamento para a guia de atendimento ou tentar alterar um de seus lançamentos e o código de saúde ocupacional informado no lançamento for diferente do que consta no primeiro lançamento ativo da guia de atendimento, o lançamento será rejeitado."
-0125-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] Caso exista um ou mais lançamentos ativos na base de dados, a operadora tentar incluir um novo lançamento para a guia de atendimento ou tentar alterar um de seus lançamentos e a Unidade de Medida informada no lançamento for diferente do que consta no primeiro lançamento ativo da guia de atendimento, o lançamento será rejeitado."
-0125-5084,"Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] Deve ser preenchido quando o item fornecido possuir unidade de medida. Não se aplica às tabelas TUSS 22, 63, 90 e 98."
-0125-5085,"Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de Inclusão ou Alteração quando o elemento ‘unidadeMedida’for informado no registro de um procedimento/item assistencial, deve ser de um tipo válido (Tabela 60 da TUSS - Terminologia de unidade de medida). É obrigatório para itens da TUSS de Medicamentos (Tabela 20)."
-0126-5076,Motivo Glosa: CPF NÃO ENCONTRADO NA RECEITA FEDERAL - Crítica ANS: [TISS 1.04 NOVA] Deve ser de um CPF válido (ter 11 caracteres) e existir na base de dados da Receita Federal.
-0127-5084,"Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] Deve ser preenchido quando o item fornecido possuir unidade de medida. Não se aplica à tabelas TUSS 22, 63, 90 e 98."
-0127-5085,"Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de Inclusão ou Alteração quando o elemento ‘unidadeMedida’for informado no registro de um procedimento/item assistencial, deve ser de um tipo válido (Tabela 60 da TUSS - Terminologia de unidade de medida). É obrigatório para itens da TUSS de Medicamentos (Tabela 20)."
-0128-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: [TISS 1.04 NOVA] Deve ser maior ou igual a zero.
-0128-5050,"Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] No lançamento de Inclusão/Alteração, caso já exista no mínimo um lançamento ativo na base de dados para a mesma guia, o valor informado do modelo de remuneração deve ser igual ao já existente na base de dados nos outros lançamentos da mesma guia, para o mesmo modelo de remuneração."
-0129-5029,"Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: [TISS 1.04 NOVA] Caso exista um ou mais lançamentos ativos na base de dados, a operadora tentar incluir um novo lançamento para a guia de atendimento ou tentar alterar um de seus lançamentos e a Unidade de Medida (no elemento ‘detalhePacote’) informada for diferente do que consta no primeiro lançamento ativo da guia de atendimento, o lançamento será rejeitado."
-0129-5084,Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] Deve ser preenchido quando o item fornecido possuir unidade de medida. Não se aplica à tabela TUSS 22.
-0129-5085,"Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: [TISS 1.04 NOVA] No lançamento de Inclusão ou Alteração quando o elemento ‘unidadeMedida’for informado no registro de um procedimento/item assistencial, deve ser de um tipo válido (Tabela 60 da TUSS - Terminologia de unidade de medida). É obrigatório para itens da TUSS de Medicamentos (Tabela 20)."
+016-1002,Motivo Glosa: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO - Crítica ANS: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO
+096-1002,Motivo Glosa: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO - Crítica ANS: NÚMERO DO CARTÃO NACIONAL DE SAÚDE INVÁLIDO
+020-1024,Motivo Glosa: PLANO NÃO EXISTENTE - Crítica ANS: PLANO NÃO EXISTENTE
+0100-1024,Motivo Glosa: PLANO NÃO EXISTENTE - Crítica ANS: PLANO NÃO EXISTENTE
+012-1202,Motivo Glosa: NÚMERO DO CNES INVÁLIDO - Crítica ANS: NÚMERO DO CNES INVÁLIDO
+088-1202,Motivo Glosa: NÚMERO DO CNES INVÁLIDO - Crítica ANS: NÚMERO DO CNES INVÁLIDO
+014-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: CPF / CNPJ INVÁLIDO
+075-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: CPF / CNPJ INVÁLIDO
+090-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: CPF / CNPJ INVÁLIDO
+0115-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: CPF / CNPJ INVÁLIDO
+0121-1206,Motivo Glosa: CPF / CNPJ INVÁLIDO - Crítica ANS: CPF / CNPJ INVÁLIDO
+035-1213,Motivo Glosa: CBO (ESPECIALIDADE) INVÁLIDO - Crítica ANS: CBO (ESPECIALIDADE) INVÁLIDO
+047-1304,Motivo Glosa: COBRANÇA EM GUIA INDEVIDA - Crítica ANS: COBRANÇA EM GUIA INDEVIDA
+048-1304,Motivo Glosa: COBRANÇA EM GUIA INDEVIDA - Crítica ANS: COBRANÇA EM GUIA INDEVIDA
+023-1307,Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: NÚMERO DA GUIA INVÁLIDO
+024-1307,Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: NÚMERO DA GUIA INVÁLIDO
+025-1307,Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: NÚMERO DA GUIA INVÁLIDO
+026-1307,Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: NÚMERO DA GUIA INVÁLIDO
+083-1307,Motivo Glosa: NÚMERO DA GUIA INVÁLIDO - Crítica ANS: NÚMERO DA GUIA INVÁLIDO
+023-1308,Motivo Glosa: GUIA JÁ APRESENTADA - Crítica ANS: GUIA JÁ APRESENTADA
+018-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+027-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+028-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+029-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+030-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+031-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+032-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+033-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+080-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+098-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+0102-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+0113-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+0119-1323,Motivo Glosa: DATA PREENCHIDA INCORRETAMENTE - Crítica ANS: DATA PREENCHIDA INCORRETAMENTE
+039-1506,Motivo Glosa: TIPO DE INTERNAÇÃO INVÁLIDO - Crítica ANS: TIPO DE INTERNAÇÃO INVÁLIDO
+041-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: CÓDIGO CID INVÁLIDO
+042-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: CÓDIGO CID INVÁLIDO
+043-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: CÓDIGO CID INVÁLIDO
+044-1509,Motivo Glosa: CÓDIGO CID INVÁLIDO - Crítica ANS: CÓDIGO CID INVÁLIDO
+045-1602,Motivo Glosa: TIPO DE ATENDIMENTO INVÁLIDO OU NÃO INFORMADO - Crítica ANS: TIPO DE ATENDIMENTO INVÁLIDO OU NÃO INFORMADO
+034-1603,Motivo Glosa: TIPO DE CONSULTA INVÁLIDO - Crítica ANS: TIPO DE CONSULTA INVÁLIDO
+050-1705,Motivo Glosa: VALOR APRESENTADO A MAIOR - Crítica ANS: VALOR APRESENTADO A MAIOR
+050-1706,Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: VALOR APRESENTADO A MENOR
+0103-1706,Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: VALOR APRESENTADO A MENOR
+0105-1706,Motivo Glosa: VALOR APRESENTADO A MENOR - Crítica ANS: VALOR APRESENTADO A MENOR
+046-1713,Motivo Glosa: FATURAMENTO INVÁLIDO - Crítica ANS: FATURAMENTO INVÁLIDO
+052-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+053-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+054-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+055-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+056-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+057-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+059-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+060-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+061-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+073-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+074-1740,Motivo Glosa: ESTORNO DO VALOR DE PROCEDIMENTO PAGO - Crítica ANS: ESTORNO DO VALOR DE PROCEDIMENTO PAGO
+066-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+078-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+0108-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+064-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+065-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+066-1801,Motivo Glosa: PROCEDIMENTO INVÁLIDO - Crítica ANS: PROCEDIMENTO INVÁLIDO
+070-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO
+072-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO
+079-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO
+0109-1806,Motivo Glosa: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO - Crítica ANS: QUANTIDADE DE PROCEDIMENTO DEVE SER MAIOR QUE ZERO
+066-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO
+078-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO
+0108-2601,Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO
+0-5001,Motivo Glosa: MENSAGEM ELETRÔNICA FORA DO PADRÃO TISS - Crítica ANS: MENSAGEM ELETRÔNICA FORA DO PADRÃO TISS
+0-5002,Motivo Glosa: NÃO FOI POSSÍVEL VALIDAR O ARQUIVO XML - Crítica ANS: NÃO FOI POSSÍVEL VALIDAR O ARQUIVO XML
+0-5014,Motivo Glosa: CÓDIGO HASH INVÁLIDO. MENSAGEM PODE ESTAR CORROMPIDA. - Crítica ANS: CÓDIGO HASH INVÁLIDO. MENSAGEM PODE ESTAR CORROMPIDA.
+0-5016,Motivo Glosa: SEM NENHUMA OCORRÊNCIA DE MOVIMENTO DE INCLUSÃO NA COMPETÊNCIA PARA ENVIO A ANS - Crítica ANS: SEM NENHUMA OCORRÊNCIA DE MOVIMENTO DE INCLUSÃO NA COMPETÊNCIA PARA ENVIO A ANS
+0-5017,Motivo Glosa: ARQUIVO PROCESSADO PELA ANS. - Crítica ANS: ARQUIVO PROCESSADO PELA ANS.
+0102-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS - Crítica ANS: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS
+0113-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS - Crítica ANS: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS
+0119-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS - Crítica ANS: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS
+0-5023,Motivo Glosa: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS - Crítica ANS: COMPETÊNCIA NÃO ESTÁ ABERTA PARA ENVIO DE DADOS
+03-5024,Motivo Glosa: OPERADORA INATIVA NA COMPETÊNCIA DOS DADOS - Crítica ANS: OPERADORA INATIVA NA COMPETÊNCIA DOS DADOS
+04-5025,Motivo Glosa: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA
+080-5025,Motivo Glosa: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: DATA DE REGISTRO DA TRANSAÇÃO INVÁLIDA
+05-5026,Motivo Glosa: HORA DE REGISTRO DA TRANSAÇÃO INVÁLIDA - Crítica ANS: HORA DE REGISTRO DA TRANSAÇÃO INVÁLIDA
+06-5027,Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: REGISTRO ANS DA OPERADORA INVÁLIDO
+081-5027,Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: REGISTRO ANS DA OPERADORA INVÁLIDO
+092-5027,Motivo Glosa: REGISTRO ANS DA OPERADORA INVÁLIDO - Crítica ANS: REGISTRO ANS DA OPERADORA INVÁLIDO
+010-5028,Motivo Glosa: VERSÃO DO PADRÃO INVÁLIDA - Crítica ANS: VERSÃO DO PADRÃO INVÁLIDA
+012-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+02-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+013-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+014-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+015-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+016-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+017-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+019-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+020-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+021-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+022-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+023-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+024-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+025-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+035-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+037-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+038-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+039-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+040-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+045-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+046-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+062-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+063-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+093-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+097-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+0101-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+0124-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+0125-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+0129-5029,Motivo Glosa: INDICADOR INVÁLIDO - Crítica ANS: INDICADOR INVÁLIDO
+015-5030,Motivo Glosa: CÓDIGO DO MUNICÍPIO INVÁLIDO - Crítica ANS: CÓDIGO DO MUNICÍPIO INVÁLIDO
+019-5030,Motivo Glosa: CÓDIGO DO MUNICÍPIO INVÁLIDO - Crítica ANS: CÓDIGO DO MUNICÍPIO INVÁLIDO
+091-5030,Motivo Glosa: CÓDIGO DO MUNICÍPIO INVÁLIDO - Crítica ANS: CÓDIGO DO MUNICÍPIO INVÁLIDO
+099-5030,Motivo Glosa: CÓDIGO DO MUNICÍPIO INVÁLIDO - Crítica ANS: CÓDIGO DO MUNICÍPIO INVÁLIDO
+038-5031,Motivo Glosa: CARÁTER DE ATENDIMENTO INVÁLIDO - Crítica ANS: CARÁTER DE ATENDIMENTO INVÁLIDO
+036-5032,Motivo Glosa: INDICADOR DE RECÉM–NATO INVÁLIDO - Crítica ANS: INDICADOR DE RECÉM–NATO INVÁLIDO
+049-5033,Motivo Glosa: MOTIVO DE ENCERRAMENTO INVÁLIDO - Crítica ANS: MOTIVO DE ENCERRAMENTO INVÁLIDO
+051-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+052-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+053-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+054-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+055-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+056-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+057-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+058-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+059-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+060-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+061-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+063-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+071-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+072-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+073-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+074-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+084-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+085-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+085-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+094-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0103-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0104-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0105-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0111-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0117-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0118-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+0128-5034,Motivo Glosa: VALOR NÃO INFORMADO - Crítica ANS: VALOR NÃO INFORMADO
+064-5035,Motivo Glosa: CÓDIGO DA TABELA DE REFERÊNCIA NÃO INFORMADO - Crítica ANS: CÓDIGO DA TABELA DE REFERÊNCIA NÃO INFORMADO
+065-5036,Motivo Glosa: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO - Crítica ANS: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO
+0107-5036,Motivo Glosa: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO - Crítica ANS: CÓDIGO DO GRUPO DO PROCEDIMENTO INVÁLIDO
+069-5039,Motivo Glosa: CÓDIGO DA FACE DO DENTE INVÁLIDO - Crítica ANS: CÓDIGO DA FACE DO DENTE INVÁLIDO
+0110-5040,Motivo Glosa: VALOR DEVE SER MAIOR QUE ZERO - Crítica ANS: VALOR DEVE SER MAIOR QUE ZERO
+0116-5040,Motivo Glosa: VALOR DEVE SER MAIOR QUE ZERO - Crítica ANS: VALOR DEVE SER MAIOR QUE ZERO
+050-5042,Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS
+059-5042,Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS
+060-5042,Motivo Glosa: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS - Crítica ANS: VALOR INFORMADO DA GUIA DIFERENTE DO SOMATÓRIO DO VALOR INFORMADO DOS ITENS
+0-5044,Motivo Glosa: JÁ EXISTEM INFORMAÇÕES NA ANS PARA A COMPETÊNCIA INFORMADA. - Crítica ANS: JÁ EXISTEM INFORMAÇÕES NA ANS PARA A COMPETÊNCIA INFORMADA.
+0119-5045,Motivo Glosa: COMPETENCIA ANTERIOR NÃO ENVIADA - Crítica ANS: COMPETENCIA ANTERIOR NÃO ENVIADA
+0-5045,Motivo Glosa: COMPETENCIA ANTERIOR NÃO ENVIADA - Crítica ANS: COMPETENCIA ANTERIOR NÃO ENVIADA
+0-5046,Motivo Glosa: COMPETÊNCIA INVÁLIDA - Crítica ANS: COMPETÊNCIA INVÁLIDA
+082-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+084-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+085-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+0103-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+0105-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+0128-5050,Motivo Glosa: VALOR INFORMADO INVÁLIDO - Crítica ANS: VALOR INFORMADO INVÁLIDO
+082-5052,Motivo Glosa: IDENTIFICADOR INEXISTENTE - Crítica ANS: IDENTIFICADOR INEXISTENTE
+064-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+065-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+077-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+078-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+093-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+0101-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+0106-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+0107-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+0108-5053,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO - Crítica ANS: IDENTIFICADOR JÁ INFORMADO
+093-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: IDENTIFICADOR NÃO ENCONTRADO
+0101-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: IDENTIFICADOR NÃO ENCONTRADO
+0106-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: IDENTIFICADOR NÃO ENCONTRADO
+0107-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: IDENTIFICADOR NÃO ENCONTRADO
+0108-5054,Motivo Glosa: IDENTIFICADOR NÃO ENCONTRADO - Crítica ANS: IDENTIFICADOR NÃO ENCONTRADO
+0115-5055,Motivo Glosa: IDENTIFICADOR JÁ INFORMADO NA COMPETÊNCIA - Crítica ANS: IDENTIFICADOR JÁ INFORMADO NA COMPETÊNCIA
+0115-5056,Motivo Glosa: IDENTIFICADOR NÃO INFORMADO NA COMPETÊNCIA - Crítica ANS: IDENTIFICADOR NÃO INFORMADO NA COMPETÊNCIA
+093-5059,Motivo Glosa: EXCLUSÃO INVÁLIDA – EXISTEM LANÇAMENTOS VINCULADOS A ESTA FORMA DE CONTRATAÇÃO - Crítica ANS: EXCLUSÃO INVÁLIDA – EXISTEM LANÇAMENTOS VINCULADOS A ESTA FORMA DE CONTRATAÇÃO
+0120-5061,Motivo Glosa: TIPO DE ATENDIMENTO OPERADORA INTERMEDIÁRIA NÃO INFORMADO - Crítica ANS: TIPO DE ATENDIMENTO OPERADORA INTERMEDIÁRIA NÃO INFORMADO
+081-5062,Motivo Glosa: REGISTRO ANS DA OPERADORA INTERMEDIÁRIA NÃO INFORMADO - Crítica ANS: REGISTRO ANS DA OPERADORA INTERMEDIÁRIA NÃO INFORMADO
+012-5063,Motivo Glosa: PAR CNPJ X CNES NAO ENCONTRADO NA BASE DO CNES - Crítica ANS: PAR CNPJ X CNES NAO ENCONTRADO NA BASE DO CNES
+012-5064,Motivo Glosa: TIPO DE ESTABELECIMENTO NO CNES NÃO É APTO PARA INTERNAÇÃO - Crítica ANS: TIPO DE ESTABELECIMENTO NO CNES NÃO É APTO PARA INTERNAÇÃO
+014-5065,Motivo Glosa: TIPO DE ATIVIDADE ECONOMICA DO CNPJ NÃO É APTO PARA INTERNAÇÃO - Crítica ANS: TIPO DE ATIVIDADE ECONOMICA DO CNPJ NÃO É APTO PARA INTERNAÇÃO
+062-5066,Motivo Glosa: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE - Crítica ANS: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE
+063-5066,Motivo Glosa: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE - Crítica ANS: NÚMERO DA DECLARAÇÃO EM DUPLICIDADE
+042-5067,Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: DIAGNÓSTICO EM DUPLICIDADE
+043-5067,Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: DIAGNÓSTICO EM DUPLICIDADE
+044-5067,Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: DIAGNÓSTICO EM DUPLICIDADE
+041-5067,Motivo Glosa: DIAGNÓSTICO EM DUPLICIDADE - Crítica ANS: DIAGNÓSTICO EM DUPLICIDADE
+063-5068,Motivo Glosa: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+062-5068,Motivo Glosa: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: DECLARAÇÃO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+067-5069,Motivo Glosa: CÓDIGO DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CÓDIGO DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+068-5070,Motivo Glosa: CÓDIGO DA REGIÃO DA BOCA DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CÓDIGO DA REGIÃO DA BOCA DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+069-5071,Motivo Glosa: CÓDIGO DA FACE DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CÓDIGO DA FACE DO DENTE DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+071-5072,Motivo Glosa: VALOR INFORMADO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: VALOR INFORMADO DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+023-5073,Motivo Glosa: O PRIMEIRO LANCAMENTO DA GUIA SÓ PODE SER EXCLUIDO SE ELE FOR O ÚNICO - Crítica ANS: O PRIMEIRO LANCAMENTO DA GUIA SÓ PODE SER EXCLUIDO SE ELE FOR O ÚNICO
+0123-5074,Motivo Glosa: REGIME DE ATENDIMENTO INVÁLIDO - Crítica ANS: REGIME DE ATENDIMENTO INVÁLIDO
+041-5075,Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+042-5075,Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+043-5075,Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+044-5075,Motivo Glosa: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA - Crítica ANS: CID DIFERENTE DO LANÇAMENTO ANTERIOR DA GUIA
+0121-5076,Motivo Glosa: CPF NÃO ENCONTRADO NA RECEITA FEDERAL - Crítica ANS: CPF NÃO ENCONTRADO NA RECEITA FEDERAL
+0126-5076,Motivo Glosa: CPF NÃO ENCONTRADO NA RECEITA FEDERAL - Crítica ANS: CPF NÃO ENCONTRADO NA RECEITA FEDERAL
+017-5077,Motivo Glosa: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF - Crítica ANS: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF
+097-5077,Motivo Glosa: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF - Crítica ANS: SEXO NA RECEITA FEDERAL DIFERENTE DO INFORMADO PARA O CPF
+018-5078,Motivo Glosa: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF - Crítica ANS: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF
+098-5078,Motivo Glosa: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF - Crítica ANS: DATA DE NASCIMENTO NA RECEITA FEDERAL DIFERENTE DA INFORMADA PARA O CPF
+0122-5079,Motivo Glosa: MODELO DE REMUNERAÇÃO EM DUPLICIDADE - Crítica ANS: MODELO DE REMUNERAÇÃO EM DUPLICIDADE
+0122-5080,Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO INFORMADO - Crítica ANS: MODELO DE REMUNERAÇÃO NÃO INFORMADO
+0122-5081,Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REEMBOLSO/PRESTADOR EVENTUAL - Crítica ANS: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REEMBOLSO/PRESTADOR EVENTUAL
+0122-5082,Motivo Glosa: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REDE PRÓPRIA COM MESMO CNPJ - Crítica ANS: MODELO DE REMUNERAÇÃO NÃO DEVE SER INFORMADO PARA REDE PRÓPRIA COM MESMO CNPJ
+050-5083,Motivo Glosa: SOMA DOS VALORES DOS MODELOS DE REMUNERAÇÃO DIFERENTE DO VALOR INFORMADO DA GUIA - Crítica ANS: SOMA DOS VALORES DOS MODELOS DE REMUNERAÇÃO DIFERENTE DO VALOR INFORMADO DA GUIA
+0125-5084,Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA
+0127-5084,Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA
+0129-5084,Motivo Glosa: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA NÃO DEVE SER PREENCHIDA PARA A TABELA TUSS INFORMADA
+0125-5085,Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA
+0127-5085,Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA
+0129-5085,Motivo Glosa: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA - Crítica ANS: UNIDADE DE MEDIDA É OBRIGATÓRIA PARA A TABELA TUSS INFORMADA
+016-5086,Motivo Glosa: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO) - Crítica ANS: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO)
+096-5086,Motivo Glosa: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO) - Crítica ANS: DADO DIVERGENTE COM A RECEITA FEDERAL PARA ESTE CNS (CPF/SEXO/DATA NASCIMENTO)
 
 """
     data_file = io.StringIO(csv_data)
@@ -1315,4 +1181,5 @@ if st.button("Analisar Erros", type="primary"):
             st.error(f"Ocorreu um erro durante a análise: {e}")
             st.error(
                 "Verifique se os arquivos estão no formato correto e se correspondem.")
+
 
