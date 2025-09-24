@@ -92,7 +92,7 @@ def carregar_erros_ans():
 "066-2601","Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: Código do procedimento ou item assistencial. A forma de envio do procedimento informado deve ser consolidado (informação na tabela TUSS 64)."
 "078-2601","Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: Código do procedimento realizado ou item assistencial que compõe o pacote. A forma de envio do procedimento informado deve ser consolidado (informação na tabela TUSS 64)."
 "0108-2601","Motivo Glosa: CODIFICAÇÃO INCORRETA/INADEQUADA DO PROCEDIMENTO - Crítica ANS: Código do procedimento, contratação fornecimento direto.Deve ser preenchido quando houver procedimentos/itens assistenciais. A forma de envio do item informado deve ser consolidado (informação na tabela TUSS 64)."
-"000-5001","Motivo Glosa: MENSAGEM ELETRÔNICA FORA DO PADRÃO TISS - Crítica ANS: Entende-se como erro de estrutura a informação de conteúdo no XML enviado pelas operadoras não previsto nos campos do XSD que define as terminologias da TUSS ou a falta de campos obrigatórios previstos neste mesmo XSD."
+"00-5001","Motivo Glosa: MENSAGEM ELETRÔNICA FORA DO PADRÃO TISS - Crítica ANS: Entende-se como erro de estrutura a informação de conteúdo no XML enviado pelas operadoras não previsto nos campos do XSD que define as terminologias da TUSS ou a falta de campos obrigatórios previstos neste mesmo XSD."
 "00-5002","Motivo Glosa: NÃO FOI POSSÍVEL VALIDAR O ARQUIVO XML - Crítica ANS: Caso o formato de compactação do arquivo enviado seja diferente de ZIP ou o método de compressão seja diferente de DEFLATE. Caso a operadora envie um arquivo ZTE que não possua nenhum arquivo a ser descompactado."
 "00-5014","Motivo Glosa: CÓDIGO HASH INVÁLIDO. MENSAGEM PODE ESTAR CORROMPIDA. - Crítica ANS: O código HASH não está de acordo com o conteúdo do arquivo, o arquivo pode ter sido alterado após ser gerado ou está corrompido."
 "00-5016","Motivo Glosa: SEM NENHUMA OCORRÊNCIA DE MOVIMENTO DE INCLUSÃO NA COMPETÊNCIA PARA ENVIO A ANS - Crítica ANS: Este código informa a ANS que a operadora não teve nenhum movimento em determinada competencia. Este código é enviado pela operadora para a ANS."
@@ -1179,6 +1179,7 @@ if st.button("Analisar Erros", type="primary"):
             st.error(f"Ocorreu um erro durante a análise: {e}")
             st.error(
                 "Verifique se os arquivos estão no formato correto e se correspondem.")
+
 
 
 
